@@ -176,13 +176,11 @@ flowchart LR
 |----|--------|-------|-----------|--------|-----------|
 | FL‑01 | APP‑WEB | APP‑INV | REST/HTTPS | JSON | BP‑01 |
 | FL‑02 | APP‑WEB | APP‑PAY | REST/HTTPS | JSON | BP‑02 |
-| FL‑03 | APP‑INV | APP‑WEB | REST/HTTPS | JSON | BP‑01 |
 
 ```mermaid
 flowchart LR
     APP‑WEB -->|REST/HTTPS| APP‑INV
     APP‑WEB -->|REST/HTTPS| APP‑PAY
-    APP‑INV -->|REST/HTTPS| APP‑WEB
 ```
 
 ---
