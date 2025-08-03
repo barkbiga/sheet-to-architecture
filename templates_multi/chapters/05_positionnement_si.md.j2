@@ -1,0 +1,16 @@
+
+## 5 · Positionnement dans le SI
+
+### 5.1 Cartographie applicative
+| ID | Nom | Département | Statut |
+|----|-----|-------------|--------|
+{% for a in applications %}
+| {{ a.ID }} | {{ a.Name }} | {{ a.Department }} | {{ a.Status }} |
+{% endfor %}
+
+```mermaid
+flowchart LR
+{% for a in applications %}
+    {{ a.ID }}["{{ a.Name }}"]
+{% endfor %}
+```

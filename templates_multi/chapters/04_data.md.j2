@@ -1,0 +1,29 @@
+## 4 · Données manipulées
+
+### 4.1 Dictionnaire de données
+| Entity | Description | CRUD | Source |
+|--------|-------------|------|--------|
+{% for row in data %}
+| {{ row.Entity }} | {{ row.Description }} | {{ row.CRUD }} | {{ row.Source }} |
+{% endfor %}
+
+### 4.2 Classification & sensibilité
+| Entity | Classification | Sensibilité |
+|--------|---------------|-------------|
+{% for row in dataclass %}
+| {{ row.Entity }} | {{ row.Classification }} | {{ row.Sensitivity }} |
+{% endfor %}
+
+### 4.3 Volumes & rétention
+| Entity | Période | Base légale |
+|--------|---------|-------------|
+{% for row in dataretention %}
+| {{ row.Entity }} | {{ row.RetentionPeriod }} | {{ row.LegalBasis }} |
+{% endfor %}
+
+### 4.4 Gouvernance & qualité
+| Entity | Owner | Steward | Quality Metric |
+|--------|-------|---------|----------------|
+{% for row in datagovernance %}
+| {{ row.Entity }} | {{ row.Owner }} | {{ row.Steward }} | {{ row.QualityMetric }} |
+{% endfor %}

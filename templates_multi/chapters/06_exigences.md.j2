@@ -1,0 +1,18 @@
+## 6 · Exigences 
+
+### 6.1 Exigences non fonctionnelles 
+
+| ID | Catégorie | Description | SLI/SLO |
+|----|-----------|-------------|---------|
+{% for n in nfr %}
+| {{ n.ID }} | {{ n.Category }} | {{ n.Description }} | {{ n.SLI }} |
+{% endfor %}
+
+
+### 6.2 Exigences de sécurité
+
+| ID | Pilier | Description |
+|----|--------|-------------|
+{% for s in secreq %}
+| {{ s.ID }} | {{ s.Pillar }} | {{ s.Description }} |
+{% endfor %}

@@ -1,0 +1,23 @@
+## 8 · Solution détaillée – Composants, intégrations & vues processus
+
+### 8.1 Composants
+| ID | Nom | Techno | Repo |
+|----|-----|--------|------|
+{% for c in components %}
+| {{ c.ID }} | {{ c.Name }} | {{ c.Tech }} | {{ c.RepoURL }} |
+{% endfor %}
+
+### 8.2 Intégrations
+| Source | Cible | Pattern |
+|--------|-------|---------|
+{% for i in integrations %}
+| {{ i.SourceID }} | {{ i.TargetID }} | {{ i.Pattern }} |
+{% endfor %}
+
+### 8.3 Vues par processus métier
+{% for p in businessprocesses %}
+#### {{ p.ID }} – {{ p.Name }}
+```plantuml
+!include diagrams/process_{{ p.ID }}.puml
+```
+{% endfor %}

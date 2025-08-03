@@ -1,0 +1,3 @@
+[console_scripts]
+pystructurizr = pystructurizr.cli:cli
+

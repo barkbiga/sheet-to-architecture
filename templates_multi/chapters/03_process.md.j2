@@ -1,0 +1,15 @@
+## 3 · Processus métier & exigences fonctionnelles
+
+### 3.1 Processus couverts
+| ID | Nom | Description | Acteurs |
+|----|-----|-------------|---------|
+{% for p in businessprocesses %}
+| {{ p.ID }} | {{ p.Name }} | {{ p.Description }} | {{ p.Actors }} |
+{% endfor %}
+
+### 3.2 Exigences fonctionnelles
+| ID | Description | Priorité |
+|----|-------------|----------|
+{% for fr in functionalreq %}
+| {{ fr.ID }} | {{ fr.Description }} | {{ fr.Priority }} |
+{% endfor %}
