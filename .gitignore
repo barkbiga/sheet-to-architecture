@@ -1,11 +1,10 @@
 # Artifacts générés
 workspace.dsl
 build/
-diagrams/
-.venvdiag
+generated/
+.venv
 __pycache__/
 # Sources de données
-*.xlsx
-*.dsl
+#*.xlsx
+#*.dsl
 # ou plus précisément :
-flows_applications.xlsx
