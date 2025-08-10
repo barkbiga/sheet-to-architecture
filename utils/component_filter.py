@@ -10,9 +10,15 @@ def load_applications_with_types(df):
     if 'Type' not in df.columns:
         df['Type'] = 'APPLICATION'
     if 'ClientType' not in df.columns:
-        df['ClientType'] = None
+        df['ClientType'] = 'System'
     if 'ShowInDiagram' not in df.columns:
         df['ShowInDiagram'] = True
+    if 'External' not in df.columns:
+        df['External'] = False
+    
+    # Définir les valeurs par défaut pour les valeurs manquantes
+    df['ClientType'] = df['ClientType'].fillna('System').infer_objects(copy=False)
+    df['External'] = df['External'].fillna(False).infer_objects(copy=False)
         
     return df
 

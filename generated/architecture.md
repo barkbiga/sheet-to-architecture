@@ -97,21 +97,14 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 ### Équipes Projet
 | Équipe | Département | Responsabilité |
 |--------|-------------|----------------|
-| PetStore-Web | Customer Experience | Interface web principale |
-| Inventory-Service | Supply Chain | Service de gestion des stocks |
-| Payment-Gateway | Finance | Passerelle de paiement externe |
-| Mobile-App | Customer Experience | Application mobile |
-| Catalog-Service | Supply Chain | Service catalogue |
-| Support-Portal | Support | Portail de support |
-| Billing-Service | Finance | Service facturation |
+| PetStore-Web | Customer Experience | Interface web principale pour navigation catalogue et commandes |
+| Inventory-Service | Supply Chain | Service de gestion des stocks et inventaire animaux |
+| Payment-Gateway | Finance | Passerelle de paiement sécurisée externe |
+| Mobile-App | Customer Experience | Application mobile iOS/Android |
+| Catalog-Service | Supply Chain | Service de gestion du catalogue produits |
+| Support-Portal | Support | Portail de support client |
+| Billing-Service | Finance | Service de facturation interne |
 | Customer-CRM | Support | Gestion relation client |
-| Web Customer | External | Client web final |
-| Partner API | External | API partenaire |
-| System Monitor | Monitoring | Monitoring système |
-| Order Events | Messaging | Topic événements commandes |
-| Inventory Events | Messaging | Topic événements stock |
-| User Database | Data | Base utilisateurs |
-| Product Database | Data | Base produits |
 
 ## ⏱️ Contraintes & Dépendances
 
@@ -151,16 +144,16 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 | Processus | Applications Supportantes | Données Manipulées |
 |-----------|---------------------------|-------------------|
 | Traitement paiement | APP-WEB, APP-PAY | Animal, Customer, Order |
-| Demande support | CLI-WEB, APP-SUP | Animal, Customer, Order |
-| Navigation catalogue | CLI-WEB, APP-WEB, APP-CAT, DB-PROD, CLI-PART | Animal, Customer, Order |
-| Passage commande | APP-WEB, TOPIC-ORDER, APP-INV | Animal, Customer, Order |
-| Mise à jour catalogue | APP-INV, TOPIC-INV, APP-CAT | Animal, Customer, Order |
-| Création ticket |  | Animal, Customer, Order |
-| Génération facture | TOPIC-ORDER, APP-BILL | Animal, Customer, Order |
-| Authentification user | APP-WEB, DB-USER | Animal, Customer, Order |
-| Calcul coût stock |  | Animal, Customer, Order |
-| Vérification commande |  | Animal, Customer, Order |
-| Notification facturation |  | Animal, Customer, Order |
+| Demande support | APP-WEB, APP-SUP | Animal, Customer, Order |
+| Navigation catalogue | APP-WEB, APP-INV, APP-MOB | Animal, Customer, Order |
+| Passage commande | APP-MOB, APP-PAY | Animal, Customer, Order |
+| Mise à jour catalogue | APP-INV, APP-CAT | Animal, Customer, Order |
+| Création ticket | APP-SUP, APP-CRM | Animal, Customer, Order |
+| Génération facture | APP-PAY, APP-BILL | Animal, Customer, Order |
+| Authentification user | APP-WEB, APP-CRM | Animal, Customer, Order |
+| Calcul coût stock | APP-INV, APP-BILL | Animal, Customer, Order |
+| Vérification commande | APP-SUP, APP-INV | Animal, Customer, Order |
+| Notification facturation | APP-BILL, APP-SUP | Animal, Customer, Order |
 
 ## 🔧 Exigences Non-Fonctionnelles
 
@@ -187,28 +180,19 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 ## 🏗️ Vue Métier (Business View)
 
 ### Cartographie des Capacités
-```plantuml
-!include diagrams/capabilities_map.puml
+```mermaid
+graph TB
+    A[Gestion Catalogue] --> B[Gestion Commandes]
+    B --> C[Gestion Paiements]
+    C --> D[Livraison]
+    A --> E[CRM Client]
 ```
-
-| Domaine | Capacité | Niveau | Description | Applications Support |
-|---------|----------|--------|-------------|---------------------|
-| **Supply Chain** | Gestion Catalogue | Core | Capacité de gestion du catalogue produits | APP-CAT,APP-INV |
-| **Customer Experience** | Expérience Client | Core | Capacité d'interface utilisateur | APP-WEB,APP-MOB |
-| **Finance** | Paiement | Supporting | Capacité de traitement des paiements | APP-PAY,APP-BILL |
-| **Support** | Support Client | Supporting | Capacité de support et relation client | APP-SUP,APP-CRM |
-| **Data** | Data Management | Infrastructure | Capacité de gestion des données | DB-USER,DB-PROD |
 
 ### Flux de Valeur
-```plantuml
-!include diagrams/value_streams.puml
-```
-
-| Flux de Valeur | Étapes | Capacités Requises | Lead Time |
-|----------------|--------|-------------------|-----------|
-| **Commande Client** | Navigation catalogue,Passage commande,Traitement paiement,Génération facture | CAP-002,CAP-001,CAP-003 |  |
-| **Support Client** | Demande support,Création ticket | CAP-004,CAP-002 |  |
-| **Gestion Stock** | Mise à jour catalogue,Calcul coût stock | CAP-001,CAP-005 |  |
+1. **Découverte** : Client browse le catalogue
+2. **Sélection** : Client ajoute au panier
+3. **Commande** : Client valide et paye
+4. **Fulfillment** : Préparation et livraison
 
 ## 🖥️ Vue Applicative (Application View)
 
@@ -220,26 +204,16 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 ### Matrice Application-Processus
 | Application Métier | Application | Processus Supportés | Statut | Criticité |
 |-------------------|-------------|---------------------|--------|-----------|
-| **Bus1** | **PetStore-Web** | Traitement paiement, Passage commande, Authentification user,  | New | Medium |
-|  | **Mobile-App** |  | New | Medium |
-| **Bus2** | **Inventory-Service** | Mise à jour catalogue,  | Existing | Medium |
-|  | **Catalog-Service** | Navigation catalogue,  | Existing | Medium |
-| **Bus3** | **Support-Portal** |  | New | Medium |
+| **Bus1** | **PetStore-Web** | Traitement paiement, Demande support, Navigation catalogue, Authentification user,  | New | Medium |
+|  | **Mobile-App** | Navigation catalogue, Passage commande,  | New | Medium |
+| **Bus2** | **Inventory-Service** | Mise à jour catalogue, Calcul coût stock,  | Existing | Medium |
+| **Non défini** | **Payment-Gateway** | Génération facture,  | SaaS | Medium |
+|  | **Catalog-Service** |  | Existing | Medium |
+|  | **Support-Portal** | Création ticket, Vérification commande,  | New | Medium |
+|  | **Billing-Service** | Notification facturation | Existing | Medium |
 |  | **Customer-CRM** |  | Existing | Medium |
-| **Bus4** | **Billing-Service** |  | Existing | Medium |
-| **Non défini** | **Payment-Gateway** |  | SaaS | Medium |
-|  | **Web Customer** | Demande support, Navigation catalogue,  | Active | Medium |
-|  | **Partner API** | Navigation catalogue,  | Active | Medium |
-|  | **System Monitor** |  | Active | Medium |
-|  | **Order Events** | Passage commande, Génération facture,  | New | Medium |
-|  | **Inventory Events** | Mise à jour catalogue,  | New | Medium |
-|  | **User Database** |  | Existing | Medium |
-|  | **Product Database** |  | Existing | Medium |
 
 ### Matrice Capacités-Applications
-```plantuml
-!include diagrams/capability_app_matrix.puml
-```
 
 ### Architecture Cible Simplifiée
 - **Frontend** : SPA React (APP-WEB)
@@ -259,20 +233,9 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 
 ---
 
-# 5 · Architecture Technique
+#5 Vue Applicative
 
-## 🌐 Vue Infrastructure
-
-### Diagramme d'Architecture Réseau
-```plantuml
-!include diagrams/infrastructure_view.puml
-```
-
-### 10.2 Détails des ressources
-| Layer | Service |Zone |Description |
-|-------|---------|-----|------------|
-| Compute | Kubernetes | PCI |nan |
-
+##· Solution globale 
 
 ## 🏗️ Patterns d'Architecture
 
@@ -283,18 +246,79 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 4. **CQRS** : Séparation commandes/requêtes pour la performance
 5. **Circuit Breaker** : Résilience face aux pannes de dépendances
 
+##· Solution détaillée – & vues processus
+
+### Vues par processus métier
+#### 1.0 – Traitement paiement
+```plantuml
+!include diagrams/process_1.0.puml
+```
+#### 2.0 – Demande support
+```plantuml
+!include diagrams/process_2.0.puml
+```
+#### 3.0 – Navigation catalogue
+```plantuml
+!include diagrams/process_3.0.puml
+```
+#### nan – Passage commande
+```plantuml
+!include diagrams/process_nan.puml
+```
+#### nan – Mise à jour catalogue
+```plantuml
+!include diagrams/process_nan.puml
+```
+#### nan – Création ticket
+```plantuml
+!include diagrams/process_nan.puml
+```
+#### nan – Génération facture
+```plantuml
+!include diagrams/process_nan.puml
+```
+#### nan – Authentification user
+```plantuml
+!include diagrams/process_nan.puml
+```
+#### nan – Calcul coût stock
+```plantuml
+!include diagrams/process_nan.puml
+```
+#### nan – Vérification commande
+```plantuml
+!include diagrams/process_nan.puml
+```
+#### nan – Notification facturation
+```plantuml
+!include diagrams/process_nan.puml
+```
+---
+
+# 6 · Architecture Technique
+
+## 🌐 Vue Infrastructure
+
+### Diagramme d'Architecture Réseau
+```plantuml
+!include diagrams/infrastructure_view.puml
+```
+
+###  Détails des ressources
+| Layer | Service |Zone |Description |
+|-------|---------|-----|------------|
+| Compute | Kubernetes | PCI |nan |
 
 
 ## 🚀 Dimensionnement & Performance
 
 ### Métriques de Dimensionnement
 
-
 ### Stratégie de Scalabilité
 
 ---
 
-# 6 · Sécurité & Conformité
+# 7 · Sécurité & Conformité
 
 ## 🛡️ Architecture de Sécurité
 
@@ -306,25 +330,20 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 ### Matrice des Contrôles de Sécurité
 |Source | Destination | Protocole | Chiffrement |Authentification |
 |-------|-------------|-----------|-------------|-----------------|
-| APP-CAT(INTERNE) | DB-PROD(INTERNE) | SQL | TLS |Basic Auth |
-| APP-INV(INTERNE) | TOPIC-INV(INTERNE) | KAFKA | TLS |Basic Auth |
-| APP-WEB(DMZ) | APP-PAY(PCI) | HTTPS | TLS |Basic Auth |
-| APP-WEB(DMZ) | DB-USER(INTERNE) | SQL | TLS |Basic Auth |
-| APP-WEB(DMZ) | TOPIC-ORDER(INTERNE) | KAFKA | TLS |Basic Auth |
-| CLI-PART(EXTERNAL) | APP-WEB(DMZ) | HTTPS | TLS |Basic Auth |
-| CLI-WEB(EXTERNAL) | APP-SUP(DMZ) | HTTPS | TLS |Basic Auth |
-| CLI-WEB(EXTERNAL) | APP-WEB(DMZ) | HTTPS | TLS |Basic Auth |
-| TOPIC-INV(INTERNE) | APP-CAT(INTERNE) | KAFKA | TLS |Basic Auth |
-| TOPIC-ORDER(INTERNE) | APP-BILL(INTERNE) | KAFKA | TLS |Basic Auth |
-| TOPIC-ORDER(INTERNE) | APP-INV(INTERNE) | KAFKA | TLS |Basic Auth |
+| APP-BILL(INTERNE) | APP-SUP(DMZ) | REST/HTTPS | TLS |Basic Auth |
+| APP-INV(INTERNE) | APP-BILL(INTERNE) | REST/HTTPS | TLS |Basic Auth |
+| APP-INV(INTERNE) | APP-CAT(INTERNE) | REST/HTTPS | TLS |Basic Auth |
+| APP-MOB(DMZ) | APP-INV(INTERNE) | REST/HTTPS | TLS |Basic Auth |
+| APP-MOB(DMZ) | APP-PAY(PCI) | REST/HTTPS | TLS |Basic Auth |
+| APP-PAY(PCI) | APP-BILL(INTERNE) | REST/HTTPS | TLS |Basic Auth |
+| APP-SUP(DMZ) | APP-CRM(INTERNE) | REST/HTTPS | TLS |Basic Auth |
+| APP-SUP(DMZ) | APP-INV(INTERNE) | REST/HTTPS | TLS |Basic Auth |
+| APP-WEB(DMZ) | APP-CRM(INTERNE) | REST/HTTPS | TLS |Basic Auth |
+| APP-WEB(DMZ) | APP-INV(INTERNE) | REST/HTTPS | TLS |Basic Auth |
+| APP-WEB(DMZ) | APP-PAY(PCI) | REST/HTTPS | TLS |Basic Auth |
+| APP-WEB(DMZ) | APP-SUP(DMZ) | REST/HTTPS | TLS |Basic Auth |
 
 ## 🔐 Modèle de Sécurité
-
-### Principes de Sécurité
-1. **Zero Trust** : "Never trust, always verify"
-2. **Defense in Depth** : Sécurité multicouche
-3. **Least Privilege** : Accès minimal nécessaire
-4. **Data Classification** : Protection selon la criticité
 
 ### Contrôles par Couche
 | Couche | Contrôles | Technologies |
@@ -334,7 +353,6 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 | **Données** | Chiffrement E2E, Tokenisation | AWS KMS, HashiCorp Vault |
 | **Identité** | MFA, RBAC, SSO | Auth0, Azure AD |
 | **Infrastructure** | CIS Benchmarks, Hardening | Chef InSpec, AWS Config |
-
 
 
 ## 📋 Conformité Réglementaire
@@ -348,7 +366,7 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 
 ---
 
-# 7 · Sécurité & Exploitation
+# 8 · Sécurité & Exploitation
 
 ## 🔐 Zones Réseau & Contrôles
 
@@ -366,7 +384,4 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 | Payment | Availability | > 99.99% | 0.01% |
 
 ---
-
-> **Document généré automatiquement** par sheet-to-architecture  
-> **Dernière mise à jour** : 15/01/2025 à 14:30  
 > **Version** : 1.0

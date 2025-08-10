@@ -29,7 +29,7 @@ def build_component_blocks(apps_df):
     blocks=[]
     for domain, group in apps_df.groupby('Domain', dropna=False):
         dom_name = domain if pd.notna(domain) and domain!='' else 'Unspecified'
-        blocks.append(f'package "{dom_name}" {{')
+        blocks.append(f'rectangle "{dom_name}" {{')
         for _, row in group.iterrows():
             alias=safe_alias(row.ID)
             blocks.append(f'  component "{row.ID}" as {alias} <<{row.Status}>>')
@@ -41,7 +41,7 @@ def build_links(flows_df):
     for _, row in flows_df.iterrows():
         src=safe_alias(row.Outbound)
         dst=safe_alias(row.Inbound)
-        links.append(f'{src} --> {dst} : {row.Protocol}')
+        links.append(f'{src} --> {dst} : {row.ID}_{row.Name}')
     return links
 
 def make_puml(flows_df, apps_df):
