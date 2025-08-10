@@ -1,0 +1,25 @@
+# Vue Infrastructure
+
+## Diagramme d'architecture réseau
+
+![Infrastructure](diagrams/infrastructure_view.png)
+
+## Tableau des flux réseau
+
+{{ infrastructure_table }}
+
+## Légende des zones réseau
+
+| Zone | Description | Couleur |
+|------|-------------|---------|
+| PCI | Zone de conformité PCI-DSS | Rouge |
+| HORS_PCI | Zone hors périmètre PCI | Turquoise |
+| DMZ | Zone démilitarisée | Jaune |
+| INTERNET | Connexions externes | Vert |
+| INTERNE | Réseau interne | Gris |
+
+## Notes techniques
+
+- Les flux sont dédupliqués : un seul lien par paire source/destination
+- Les protocoles multiples sont agrégés sur le même lien
+- Les ports sont indiqués quand disponibles

@@ -84,6 +84,6 @@ if __name__=='__main__':
     import pandas as pd
     ap=argparse.ArgumentParser()
     ap.add_argument('-i','--input',default='petstore_archi_v5.xlsx')
-    ap.add_argument('-o','--out',default='diagrams')
+    ap.add_argument('-o','--out',default='generated/diagrams')
     args=ap.parse_args()
     generate(pathlib.Path(args.input), pathlib.Path(args.out))

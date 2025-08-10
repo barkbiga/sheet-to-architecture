@@ -1,0 +1,106 @@
+# Vue Technologique
+
+## 🏗️ Architecture Technique d'Ensemble
+
+### Diagramme Infrastructure
+![Infrastructure](diagrams/infrastructure_view.png)
+
+### Zones Réseau
+{% for app in applications %}
+#### {{ app.Name }}
+- **Zone** : {{ app.Network_Zone or 'N/A' }}
+- **Statut** : {{ app.Status }}
+{% endfor %}
+
+---
+
+## 🔧 Stack Technologique
+
+### Applications par Technologie
+| Application | Technologie | Statut | Hébergement |
+|-------------|-------------|--------|-------------|
+{% for app in applications %}
+| {{ app.Name }} | {% if app.Status == 'SaaS' %}Cloud SaaS{% elif app.Status == 'New' %}Modern Stack{% else %}Legacy{% endif %} | {{ app.Status }} | {{ app.Network_Zone }} |
+{% endfor %}
+
+### Standards Techniques
+- **API** : REST/GraphQL avec OpenAPI 3.0
+- **Sécurité** : OAuth 2.0 + JWT
+- **Monitoring** : Prometheus + Grafana
+- **Logs** : ELK Stack centralisé
+
+---
+
+## 🌐 Patterns d'Intégration
+
+### Flux & Protocoles
+{{ infrastructure_table }}
+
+### Patterns Utilisés
+1. **API Gateway** : Point d'entrée unique
+2. **Event-Driven** : Async messaging
+3. **CQRS** : Séparation lecture/écriture
+4. **Circuit Breaker** : Résilience
+
+---
+
+## 🔒 Sécurité Technique
+
+### Vue Sécurité
+![Sécurité](diagrams/security_view.png)
+
+### Contrôles par Zone
+{{ security_table }}
+
+### Mesures de Protection
+- **DMZ** : WAF + Load Balancer + DDoS Protection
+- **PCI** : HSM + Tokenisation + Chiffrement E2E
+- **INTERNE** : Zero Trust + Microsegmentation
+- **INTERNET** : API Gateway + Rate Limiting
+
+---
+
+## 📊 Dimensionnement & Performance
+
+### Métriques Cibles
+| Métrique | Cible | Mesure |
+|----------|-------|--------|
+| Latence API | < 100ms | P95 |
+| Throughput | 10K req/sec | Peak |
+| Disponibilité | 99.9% | SLA |
+| MTTR | < 15min | Incident |
+
+### Stratégie Scalabilité
+- **Horizontale** : Auto-scaling Kubernetes
+- **Cache** : Redis distribué multi-niveaux  
+- **CDN** : Assets statiques globaux
+- **DB** : Read replicas + Sharding
+
+---
+
+## 🚀 Déploiement & DevOps
+
+### Pipeline CI/CD
+```mermaid
+graph LR
+    A[Code] --> B[Build]
+    B --> C[Test]
+    C --> D[Security Scan]
+    D --> E[Deploy Staging]
+    E --> F[E2E Tests]
+    F --> G[Deploy Prod]
+```
+
+### Environnements
+| Env | Usage | Config |
+|-----|-------|--------|
+| DEV | Développement | 1 pod/service |
+| TEST | Tests automatisés | 2 pods/service |
+| STAGING | Pre-prod | 3 pods/service |
+| PROD | Production | Auto-scaling |
+
+### Monitoring & Observabilité
+- **Métriques** : Prometheus + Custom metrics
+- **Traces** : Jaeger distributed tracing
+- **Logs** : Structured logging (JSON)
+- **Alerting** : PagerDuty integration

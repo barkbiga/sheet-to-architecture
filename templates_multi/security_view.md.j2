@@ -1,0 +1,35 @@
+# Vue Sécurité
+
+## Diagramme d'architecture sécurité
+
+![Sécurité](diagrams/security_view.png)
+
+## Tableau des mesures de sécurité
+
+{{ security_table }}
+
+## Niveaux de sécurité
+
+| Niveau | Description | Couleur |
+|--------|-------------|---------|
+| High | Sécurité renforcée | Rouge |
+| Medium | Sécurité standard | Orange |
+| Low | Sécurité minimale | Vert |
+
+## Contrôles de sécurité recommandés
+
+### Flux sans contrôles identifiés
+Les flux marqués "Aucun" dans le tableau nécessitent une analyse de risque approfondie.
+
+### Mesures de protection standard
+- **Firewall** : Filtrage des paquets réseau
+- **WAF** : Protection des applications web
+- **VPN** : Chiffrement des communications
+- **SSL/TLS** : Sécurisation des échanges HTTPS
+- **API Gateway** : Contrôle d'accès aux APIs
+
+### Recommandations générales
+1. Tous les flux externes doivent traverser un firewall
+2. Les communications sensibles doivent être chiffrées
+3. L'accès aux zones PCI doit être strictement contrôlé
+4. Logs et monitoring des flux critiques

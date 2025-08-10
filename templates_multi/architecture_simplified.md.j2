@@ -1,8 +1,8 @@
 # Dossier d'Architecture d'Entreprise
-## 
+## {{ project.Name }}
 
 > **Version** : 1.0  
-> **Date** : 2025-01-15  
+> **Date** : {{ project.get('Date', '2025-01-15') }}  
 > **Statut** : 🟡 En révision  
 
 ---
@@ -24,12 +24,12 @@
 ## 🎯 Vision & Objectifs Stratégiques
 
 ### Vision Métier
-
+{{ project.Name }}
 
 ### Objectifs Business Mesurables
-- **Améliorer Expérience Client** : Atteindre 8.5 score (KPI: NPS Score)
-- **Optimiser Conversion** : Atteindre 12.0 % (KPI: Conversion Rate)
-- **Réduire Temps Traitement** : Atteindre 24.0 heures (KPI: Order Processing Time)
+{% for obj in objectives %}
+- **{{ obj.Objective }}** : Atteindre {{ obj.Target }} {{ obj.Unit }} (KPI: {{ obj.KPI }})
+{% endfor %}
 
 ## 📊 Vue d'Ensemble de l'Architecture
 
@@ -70,20 +70,22 @@
 ## 🏢 Contexte Business
 
 ### Enjeux Métier
-Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'animaux domestiques.
+{{ project.get('Context', project.Name) }}
 
 ### Périmètre Fonctionnel
 **Dans le périmètre :**
-- Catalogue en ligne
-- Commandes
-- Paiement
-- Gestion clients
-- Support
+{% if project.get('Scope') %}
+{% for item in project.Scope.split(',') %}
+- {{ item.strip() }}
+{% endfor %}
+{% endif %}
 
 **Hors périmètre :**
-- Services vétérinaires
-- Livraison physique
-- Marketing digital
+{% if project.get('Out_of_Scope') %}
+{% for item in project.Out_of_Scope.split(',') %}
+- {{ item.strip() }}
+{% endfor %}
+{% endif %}
 
 ## 🎭 Parties Prenantes
 
@@ -97,29 +99,23 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 ### Équipes Projet
 | Équipe | Département | Responsabilité |
 |--------|-------------|----------------|
-| PetStore-Web | Customer Experience | Interface web principale |
-| Inventory-Service | Supply Chain | Service de gestion des stocks |
-| Payment-Gateway | Finance | Passerelle de paiement externe |
-| Mobile-App | Customer Experience | Application mobile |
-| Catalog-Service | Supply Chain | Service catalogue |
-| Support-Portal | Support | Portail de support |
-| Billing-Service | Finance | Service facturation |
-| Customer-CRM | Support | Gestion relation client |
-| Web Customer | External | Client web final |
-| Partner API | External | API partenaire |
-| System Monitor | Monitoring | Monitoring système |
-| Order Events | Messaging | Topic événements commandes |
-| Inventory Events | Messaging | Topic événements stock |
-| User Database | Data | Base utilisateurs |
-| Product Database | Data | Base produits |
+{% for app in applications %}
+| {{ app.Name }} | {{ app.Domain or app.Department or 'N/A' }} | {{ app.Description or 'Application' }} |
+{% endfor %}
 
 ## ⏱️ Contraintes & Dépendances
 
 ### Contraintes Temporelles
 | Jalon | Date Cible | Criticité |
 |-------|-----------|-----------|
+{% for constraint in constraints if constraint.Type == 'Planning' %}
+| {{ constraint.Milestone }} | {{ constraint.Date }} | 🔴 Critique |
+{% endfor %}
 
 ### Contraintes Budgétaires
+{% for constraint in constraints if constraint.Type == 'Budget' %}
+- **Budget total** : {{ constraint.Value }}
+{% endfor %}
 
 ### Dépendances Externes
 - Validation réglementaire (CNIL, PCI-DSS)
@@ -135,32 +131,16 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 ### Processus Métier Couverts
 | ID | Processus | Description | Acteurs | Criticité |
 |----|-----------|-------------|---------|-----------|
-| 1.0 | **Traitement paiement** | nan | nan | 🟡 Standard |
-| 2.0 | **Demande support** | nan | nan | 🟡 Standard |
-| 3.0 | **Navigation catalogue** | nan | nan | 🟡 Standard |
-| nan | **Passage commande** | nan | nan | 🟡 Standard |
-| nan | **Mise à jour catalogue** | nan | nan | 🟡 Standard |
-| nan | **Création ticket** | nan | nan | 🟡 Standard |
-| nan | **Génération facture** | nan | nan | 🟡 Standard |
-| nan | **Authentification user** | nan | nan | 🟡 Standard |
-| nan | **Calcul coût stock** | nan | nan | 🟡 Standard |
-| nan | **Vérification commande** | nan | nan | 🟡 Standard |
-| nan | **Notification facturation** | nan | nan | 🟡 Standard |
+{% for proc in businessprocesses %}
+| {{ proc.ID }} | **{{ proc.Name }}** | {{ proc.Description }} | {{ proc.Actors }} | 🟡 Standard |
+{% endfor %}
 
 ### Matrice Fonctionnelle
 | Processus | Applications Supportantes | Données Manipulées |
 |-----------|---------------------------|-------------------|
-| Traitement paiement | APP-WEB, APP-PAY | Animal, Customer, Order |
-| Demande support | CLI-WEB, APP-SUP | Animal, Customer, Order |
-| Navigation catalogue | CLI-WEB, APP-WEB, APP-CAT, DB-PROD, CLI-PART | Animal, Customer, Order |
-| Passage commande | APP-WEB, TOPIC-ORDER, APP-INV | Animal, Customer, Order |
-| Mise à jour catalogue | APP-INV, TOPIC-INV, APP-CAT | Animal, Customer, Order |
-| Création ticket |  | Animal, Customer, Order |
-| Génération facture | TOPIC-ORDER, APP-BILL | Animal, Customer, Order |
-| Authentification user | APP-WEB, DB-USER | Animal, Customer, Order |
-| Calcul coût stock |  | Animal, Customer, Order |
-| Vérification commande |  | Animal, Customer, Order |
-| Notification facturation |  | Animal, Customer, Order |
+{% for proc in businessprocesses %}
+| {{ proc.Name }} | {% set apps = [] %}{% for flow in flows if flow.BusinessProcess == proc.Name %}{% if flow.Outbound not in apps %}{% set _ = apps.append(flow.Outbound) %}{% endif %}{% if flow.Inbound not in apps %}{% set _ = apps.append(flow.Inbound) %}{% endif %}{% endfor %}{{ apps | join(', ') }} | {% for data in data_entities %}{{ data.Entity }}{% if not loop.last %}, {% endif %}{% endfor %} |
+{% endfor %}
 
 ## 🔧 Exigences Non-Fonctionnelles
 
@@ -187,28 +167,43 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 ## 🏗️ Vue Métier (Business View)
 
 ### Cartographie des Capacités
+{% if capabilities %}
 ```plantuml
 !include diagrams/capabilities_map.puml
 ```
 
 | Domaine | Capacité | Niveau | Description | Applications Support |
 |---------|----------|--------|-------------|---------------------|
-| **Supply Chain** | Gestion Catalogue | Core | Capacité de gestion du catalogue produits | APP-CAT,APP-INV |
-| **Customer Experience** | Expérience Client | Core | Capacité d'interface utilisateur | APP-WEB,APP-MOB |
-| **Finance** | Paiement | Supporting | Capacité de traitement des paiements | APP-PAY,APP-BILL |
-| **Support** | Support Client | Supporting | Capacité de support et relation client | APP-SUP,APP-CRM |
-| **Data** | Data Management | Infrastructure | Capacité de gestion des données | DB-USER,DB-PROD |
+{% for capability in capabilities %}
+| **{{ capability.Domain }}** | {{ capability.Name }} | {{ capability.Level }} | {{ capability.Description }} | {{ capability.Applications }} |
+{% endfor %}
+{% else %}
+```mermaid
+graph TB
+    A[Gestion Catalogue] --> B[Gestion Commandes]
+    B --> C[Gestion Paiements]
+    C --> D[Livraison]
+    A --> E[CRM Client]
+```
+{% endif %}
 
 ### Flux de Valeur
+{% if valuestreams %}
 ```plantuml
 !include diagrams/value_streams.puml
 ```
 
 | Flux de Valeur | Étapes | Capacités Requises | Lead Time |
 |----------------|--------|-------------------|-----------|
-| **Commande Client** | Navigation catalogue,Passage commande,Traitement paiement,Génération facture | CAP-002,CAP-001,CAP-003 |  |
-| **Support Client** | Demande support,Création ticket | CAP-004,CAP-002 |  |
-| **Gestion Stock** | Mise à jour catalogue,Calcul coût stock | CAP-001,CAP-005 |  |
+{% for stream in valuestreams %}
+| **{{ stream.Name }}** | {{ stream.Steps }} | {{ stream.Capabilities }} | {{ stream.LeadTime }} |
+{% endfor %}
+{% else %}
+1. **Découverte** : Client browse le catalogue
+2. **Sélection** : Client ajoute au panier
+3. **Commande** : Client valide et paye
+4. **Fulfillment** : Préparation et livraison
+{% endif %}
 
 ## 🖥️ Vue Applicative (Application View)
 
@@ -220,26 +215,19 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 ### Matrice Application-Processus
 | Application Métier | Application | Processus Supportés | Statut | Criticité |
 |-------------------|-------------|---------------------|--------|-----------|
-| **Bus1** | **PetStore-Web** | Traitement paiement, Passage commande, Authentification user,  | New | Medium |
-|  | **Mobile-App** |  | New | Medium |
-| **Bus2** | **Inventory-Service** | Mise à jour catalogue,  | Existing | Medium |
-|  | **Catalog-Service** | Navigation catalogue,  | Existing | Medium |
-| **Bus3** | **Support-Portal** |  | New | Medium |
-|  | **Customer-CRM** |  | Existing | Medium |
-| **Bus4** | **Billing-Service** |  | Existing | Medium |
-| **Non défini** | **Payment-Gateway** |  | SaaS | Medium |
-|  | **Web Customer** | Demande support, Navigation catalogue,  | Active | Medium |
-|  | **Partner API** | Navigation catalogue,  | Active | Medium |
-|  | **System Monitor** |  | Active | Medium |
-|  | **Order Events** | Passage commande, Génération facture,  | New | Medium |
-|  | **Inventory Events** | Mise à jour catalogue,  | New | Medium |
-|  | **User Database** |  | Existing | Medium |
-|  | **Product Database** |  | Existing | Medium |
+{% set business_apps = applications | groupby('BusinessApp') %}
+{% for business_app, apps_list in business_apps %}
+{% for app in apps_list %}
+| {% if loop.first %}**{{ business_app }}**{% endif %} | **{{ app.Name }}** | {% for proc in businessprocesses %}{% if app.ID in flows | selectattr('BusinessProcess', 'equalto', proc.Name) | map(attribute='Outbound') | list %}{{ proc.Name }}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %} | {{ app.Status }} | {{ app.Security_Level or 'Medium' }} |
+{% endfor %}
+{% endfor %}
 
 ### Matrice Capacités-Applications
+{% if capabilities %}
 ```plantuml
 !include diagrams/capability_app_matrix.puml
 ```
+{% endif %}
 
 ### Architecture Cible Simplifiée
 - **Frontend** : SPA React (APP-WEB)
@@ -252,27 +240,16 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 ### Modèle de Données Conceptuel
 | Entité | Description | Classification | Rétention |
 |--------|-------------|----------------|-----------|
-| **Animal** | Informations détaillées sur l'animal | nan | nan  |
-| **Customer** | Fiche client | nan | nan  |
-| **Order** | Commande d'animaux & accessoires | nan | nan  |
+{% for data in data_entities %}
+| **{{ data.Entity }}** | {{ data.Description }} | {{ data.Classification }} | {{ data.RetentionPeriod }}  |
+{% endfor %}
 
 
 ---
 
-# 5 · Architecture Technique
+#5 Vue Applicative
 
-## 🌐 Vue Infrastructure
-
-### Diagramme d'Architecture Réseau
-```plantuml
-!include diagrams/infrastructure_view.puml
-```
-
-### 10.2 Détails des ressources
-| Layer | Service |Zone |Description |
-|-------|---------|-----|------------|
-| Compute | Kubernetes | PCI |nan |
-
+##· Solution globale 
 
 ## 🏗️ Patterns d'Architecture
 
@@ -283,18 +260,43 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 4. **CQRS** : Séparation commandes/requêtes pour la performance
 5. **Circuit Breaker** : Résilience face aux pannes de dépendances
 
+##· Solution détaillée – & vues processus
+
+### Vues par processus métier
+{% for p in businessprocesses %}
+#### {{ p.ID }} – {{ p.Name }}
+```plantuml
+!include diagrams/process_{{ p.ID }}.puml
+```
+{% endfor %}
+---
+
+# 6 · Architecture Technique
+
+## 🌐 Vue Infrastructure
+
+### Diagramme d'Architecture Réseau
+```plantuml
+!include diagrams/infrastructure_view.puml
+```
+
+###  Détails des ressources
+| Layer | Service |Zone |Description |
+|-------|---------|-----|------------|
+{% for r in infra %}
+| {{ r.Layer }} | {{ r.Service }} | {{ r.Zone }} |{{ r.Description }} |
+{% endfor %}
 
 
 ## 🚀 Dimensionnement & Performance
 
 ### Métriques de Dimensionnement
 
-
 ### Stratégie de Scalabilité
 
 ---
 
-# 6 · Sécurité & Conformité
+# 7 · Sécurité & Conformité
 
 ## 🛡️ Architecture de Sécurité
 
@@ -304,27 +306,9 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 ```
 
 ### Matrice des Contrôles de Sécurité
-|Source | Destination | Protocole | Chiffrement |Authentification |
-|-------|-------------|-----------|-------------|-----------------|
-| APP-CAT(INTERNE) | DB-PROD(INTERNE) | SQL | TLS |Basic Auth |
-| APP-INV(INTERNE) | TOPIC-INV(INTERNE) | KAFKA | TLS |Basic Auth |
-| APP-WEB(DMZ) | APP-PAY(PCI) | HTTPS | TLS |Basic Auth |
-| APP-WEB(DMZ) | DB-USER(INTERNE) | SQL | TLS |Basic Auth |
-| APP-WEB(DMZ) | TOPIC-ORDER(INTERNE) | KAFKA | TLS |Basic Auth |
-| CLI-PART(EXTERNAL) | APP-WEB(DMZ) | HTTPS | TLS |Basic Auth |
-| CLI-WEB(EXTERNAL) | APP-SUP(DMZ) | HTTPS | TLS |Basic Auth |
-| CLI-WEB(EXTERNAL) | APP-WEB(DMZ) | HTTPS | TLS |Basic Auth |
-| TOPIC-INV(INTERNE) | APP-CAT(INTERNE) | KAFKA | TLS |Basic Auth |
-| TOPIC-ORDER(INTERNE) | APP-BILL(INTERNE) | KAFKA | TLS |Basic Auth |
-| TOPIC-ORDER(INTERNE) | APP-INV(INTERNE) | KAFKA | TLS |Basic Auth |
+{{ security_table }}
 
 ## 🔐 Modèle de Sécurité
-
-### Principes de Sécurité
-1. **Zero Trust** : "Never trust, always verify"
-2. **Defense in Depth** : Sécurité multicouche
-3. **Least Privilege** : Accès minimal nécessaire
-4. **Data Classification** : Protection selon la criticité
 
 ### Contrôles par Couche
 | Couche | Contrôles | Technologies |
@@ -334,7 +318,6 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 | **Données** | Chiffrement E2E, Tokenisation | AWS KMS, HashiCorp Vault |
 | **Identité** | MFA, RBAC, SSO | Auth0, Azure AD |
 | **Infrastructure** | CIS Benchmarks, Hardening | Chef InSpec, AWS Config |
-
 
 
 ## 📋 Conformité Réglementaire
@@ -348,7 +331,7 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 
 ---
 
-# 7 · Sécurité & Exploitation
+# 8 · Sécurité & Exploitation
 
 ## 🔐 Zones Réseau & Contrôles
 
@@ -366,7 +349,4 @@ Développement d'une plateforme PetStore en ligne pour la vente et l'adoption d'
 | Payment | Availability | > 99.99% | 0.01% |
 
 ---
-
-> **Document généré automatiquement** par sheet-to-architecture  
-> **Dernière mise à jour** : 15/01/2025 à 14:30  
 > **Version** : 1.0

@@ -1,0 +1,65 @@
+# Résumé Exécutif - {{ project.Name }}
+
+## 🎯 Vision & Objectifs
+
+### Vision
+{{ project.Name }}
+
+### Objectifs Business
+{% for obj in objectives %}
+- **{{ obj.Objective }}** : {{ obj.Target }} {{ obj.Unit }}
+{% endfor %}
+
+### ROI Estimé
+- **Budget** : {{ project.Budget }} €
+- **Délai** : {{ project.Lead_Time_Target }} jours
+- **Impact** : +{{ project.Conversion_Target }}% conversion
+
+---
+
+## 🏗️ Architecture Cible
+
+### Schéma de Principe
+![Vue d'ensemble](diagrams/overview.png)
+
+### Applications Principales
+{% for app in applications[:3] %}
+- **{{ app.Name }}** ({{ app.Status }}) - {{ app.Department }}
+{% endfor %}
+
+### Décisions Architecturales Clés
+1. **Microservices** pour la scalabilité
+2. **API-First** pour l'intégration
+3. **Cloud-Native** pour l'agilité
+
+---
+
+## 📅 Plan & Budget
+
+### Timeline
+| Jalon | Date | Statut |
+|-------|------|--------|
+{% for constraint in constraints if constraint.Type == 'Planning' %}
+| {{ constraint.Milestone }} | {{ constraint.Date }} | 🟡 Planifié |
+{% endfor %}
+
+### Risques Majeurs
+- **Intégration** : Complexité des APIs externes
+- **Sécurité** : Conformité PCI-DSS
+- **Performance** : Montée en charge
+
+---
+
+## ✅ Recommandations
+
+### Go/No-Go : **🟢 GO**
+
+### Actions Prioritaires
+1. **Sécuriser** les API externes
+2. **Valider** les performances 
+3. **Former** les équipes DevOps
+
+### Prochaines Étapes
+- [ ] Validation architecture détaillée
+- [ ] Setup environnements de dev
+- [ ] Démarrage développement MVP

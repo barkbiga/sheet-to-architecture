@@ -22,5 +22,7 @@ RUN pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --
 RUN apt-get update && apt-get install -y plantuml default-jre
 COPY . .
 
-# Commande de lancement par défaut
-CMD ["python", "main.py"]
+# Commande de lancement par défaut  
+# Permet de passer des paramètres via docker run
+ENTRYPOINT ["python", "generate.py"]
+CMD ["--all"]

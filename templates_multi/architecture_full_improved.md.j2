@@ -1,0 +1,604 @@
+# Dossier d'Architecture d'Entreprise
+## {{ project.Name }}
+
+> **Version** : 1.0  
+> **Date** : {{ project.get('Date', '2025-01-15') }}  
+> **Statut** : 🟡 En révision  
+
+---
+
+# 📋 Table des Matières
+
+1. [Résumé Exécutif](#1--résumé-exécutif)
+2. [Contexte & Périmètre](#2--contexte--périmètre)
+3. [Analyse des Exigences](#3--analyse-des-exigences)
+4. [Vues d'Architecture](#4--vues-darchitecture)
+5. [Architecture Technique](#5--architecture-technique)
+6. [Sécurité & Conformité](#6--sécurité--conformité)
+7. [Plan d'Implémentation](#7--plan-dimplémentation)
+8. [Exploitation & Gouvernance](#8--exploitation--gouvernance)
+9. [Matrices de Traçabilité](#9--matrices-de-traçabilité)
+10. [Annexes](#10--annexes)
+
+---
+
+# 1 · Résumé Exécutif
+
+## 🎯 Vision & Objectifs Stratégiques
+
+### Vision Métier
+{{ project.Name }}
+
+### Objectifs Business Mesurables
+{% for obj in objectives %}
+- **{{ obj.Objective }}** : Atteindre {{ obj.Target }} {{ obj.Unit }} (KPI: {{ obj.KPI }})
+{% endfor %}
+
+### Value Proposition & ROI
+- **Budget global** : {{ project.get('Budget', 'N/A') }} €
+- **Délai de réalisation** : {{ project.get('Lead_Time_Target', 'N/A') }} jours
+- **Impact attendu** : +{{ project.get('Conversion_Target', 'N/A') }}% de conversion
+
+## 📊 Vue d'Ensemble de l'Architecture
+
+### Schéma de Principe
+```plantuml
+!include diagrams/overview.puml
+```
+
+### Décisions Architecturales Majeures
+1. **Architecture microservices** pour la scalabilité et la résilience
+2. **API-First approach** pour l'interopérabilité
+3. **Multi-zone deployment** pour la sécurité et la conformité
+4. **Event-driven patterns** pour le découplage
+
+## 🚦 Recommandation & Next Steps
+
+### Décision Go/No-Go : **🟢 GO**
+
+**Prochaines étapes critiques :**
+- [ ] Validation sécurité par le RSSI
+- [ ] Approbation budget par le COMEX
+- [ ] Setup des environnements de développement
+- [ ] Formation des équipes techniques
+
+---
+
+# 2 · Contexte & Périmètre
+
+## 🏢 Contexte Business
+
+### Enjeux Métier
+{{ project.get('Context', project.Name) }}
+
+### Périmètre Fonctionnel
+**Dans le périmètre :**
+{% if project.get('Scope') %}
+{% for item in project.Scope.split(',') %}
+- {{ item.strip() }}
+{% endfor %}
+{% endif %}
+
+**Hors périmètre :**
+{% if project.get('Out_of_Scope') %}
+{% for item in project.Out_of_Scope.split(',') %}
+- {{ item.strip() }}
+{% endfor %}
+{% endif %}
+
+## 🎭 Parties Prenantes
+
+### Sponsors & Decision Makers
+| Rôle | Nom | Organisation | Responsabilité |
+|------|-----|--------------|----------------|
+| Sponsor Métier | TBD | Direction Métier | Financement & Vision |
+| RSSI | TBD | Sécurité | Validation sécurité |
+| DSI | TBD | IT | Implémentation |
+
+### Équipes Projet
+| Équipe | Département | Responsabilité |
+|--------|-------------|----------------|
+{% for app in applications %}
+| {{ app.Name }} | {{ app.Domain or app.Department or 'N/A' }} | {{ app.Description or 'Application' }} |
+{% endfor %}
+
+## ⏱️ Contraintes & Dépendances
+
+### Contraintes Temporelles
+| Jalon | Date Cible | Criticité |
+|-------|-----------|-----------|
+{% for constraint in constraints if constraint.Type == 'Planning' %}
+| {{ constraint.Milestone }} | {{ constraint.Date }} | 🔴 Critique |
+{% endfor %}
+
+### Contraintes Budgétaires
+{% for constraint in constraints if constraint.Type == 'Budget' %}
+- **Budget total** : {{ constraint.Value }}
+{% endfor %}
+
+### Dépendances Externes
+- Validation réglementaire (CNIL, PCI-DSS)
+- APIs partenaires externes
+- Migration données legacy
+
+---
+
+# 3 · Analyse des Exigences
+
+## 📋 Exigences Fonctionnelles
+
+### Processus Métier Couverts
+| ID | Processus | Description | Acteurs | Criticité |
+|----|-----------|-------------|---------|-----------|
+{% for proc in businessprocesses %}
+| {{ proc.ID }} | **{{ proc.Name }}** | {{ proc.Description }} | {{ proc.Actors }} | 🟡 Standard |
+{% endfor %}
+
+### Matrice Fonctionnelle
+| Processus | Applications Supportantes | Données Manipulées |
+|-----------|---------------------------|-------------------|
+{% for proc in businessprocesses %}
+| {{ proc.Name }} | {% set apps = [] %}{% for flow in flows if flow.BusinessProcess == proc.Name %}{% if flow.Outbound not in apps %}{% set _ = apps.append(flow.Outbound) %}{% endif %}{% if flow.Inbound not in apps %}{% set _ = apps.append(flow.Inbound) %}{% endif %}{% endfor %}{{ apps | join(', ') }} | {% for data in data_entities %}{{ data.Entity }}{% if not loop.last %}, {% endif %}{% endfor %} |
+{% endfor %}
+
+## 🔧 Exigences Non-Fonctionnelles
+
+### Exigences de Performance
+| Métrique | Objectif | Mesure | SLA |
+|----------|----------|--------|-----|
+| Temps de réponse API | < 200ms | P95 | 99.5% |
+| Throughput | 5K req/sec | Peak | 99.9% |
+| Disponibilité | 99.9% | Uptime | 24x7 |
+
+### Exigences de Sécurité
+| Domaine | Exigence | Standard | Validation |
+|---------|----------|----------|-----------|
+| Authentification | OAuth 2.0 + JWT | OWASP | Tests sécurité |
+| Chiffrement | TLS 1.3 E2E | NIST | Audit RSSI |
+| Données | Pseudonymisation PII | GDPR | DPO Review |
+
+### Exigences de Conformité
+| Réglementation | Périmètre | Contrôles Requis | Responsable |
+|----------------|-----------|------------------|-------------|
+| GDPR | Données personnelles | Consentement, Portabilité | DPO |
+| PCI-DSS | Données de paiement | Tokenisation, Audit | RSSI |
+| SOX | Données financières | Traçabilité, Contrôles | DAF |
+
+---
+
+# 4 · Vues d'Architecture
+
+## 🏗️ Vue Métier (Business View)
+
+### Cartographie des Capacités
+```mermaid
+graph TB
+    A[Gestion Catalogue] --> B[Gestion Commandes]
+    B --> C[Gestion Paiements]
+    C --> D[Livraison]
+    A --> E[CRM Client]
+```
+
+### Flux de Valeur
+1. **Découverte** : Client browse le catalogue
+2. **Sélection** : Client ajoute au panier
+3. **Commande** : Client valide et paye
+4. **Fulfillment** : Préparation et livraison
+
+## 🖥️ Vue Applicative (Application View)
+
+### Cartographie Applicative
+```plantuml
+!include diagrams/overview.puml
+```
+
+### Matrice Application-Processus
+| Application Métier | Application | Processus Supportés | Statut | Criticité |
+|-------------------|-------------|---------------------|--------|-----------|
+{% set business_apps = applications | groupby('BusinessApp') %}
+{% for business_app, apps_list in business_apps %}
+{% for app in apps_list %}
+| {% if loop.first %}**{{ business_app }}**{% endif %} | **{{ app.Name }}** | {% for proc in businessprocesses %}{% if app.ID in flows | selectattr('BusinessProcess', 'equalto', proc.Name) | map(attribute='Outbound') | list %}{{ proc.Name }}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %} | {{ app.Status }} | {{ app.Security_Level or 'Medium' }} |
+{% endfor %}
+{% endfor %}
+
+### Architecture Cible Simplifiée
+- **Frontend** : SPA React (APP-WEB)
+- **Backend** : Microservices REST (APP-INV, APP-PAY)
+- **Données** : PostgreSQL + Redis
+- **Intégrations** : API Gateway + Message Bus
+
+## 🗄️ Vue Données (Data View)
+
+### Modèle de Données Conceptuel
+| Entité | Description | Classification | Rétention |
+|--------|-------------|----------------|-----------|
+{% for data in data_entities %}
+| **{{ data.Entity }}** | {{ data.Description }} | {% for dc in dataclass if dc.Entity == data.Entity %}{{ dc.Classification }}{% endfor %} | {% for dr in dataretention if dr.Entity == data.Entity %}{{ dr.Retention_Period }}{% endfor %} |
+{% endfor %}
+
+### Flux de Données
+```mermaid
+graph LR
+    A[Client Data] --> B[CRM]
+    B --> C[Order DB]
+    C --> D[Payment Gateway]
+    D --> E[Financial System]
+```
+
+### Gouvernance des Données
+| Entité | Data Owner | Data Steward | Qualité Cible |
+|--------|------------|--------------|---------------|
+{% for dg in datagovernance %}
+| {{ dg.Entity }} | {{ dg.Owner }} | {{ dg.Steward }} | {{ dg.Quality_Metric }} |
+{% endfor %}
+
+---
+
+# 5 · Architecture Technique
+
+## 🌐 Vue Infrastructure
+
+### Diagramme d'Architecture Réseau
+```plantuml
+!include diagrams/infrastructure_view.puml
+```
+
+### Zones Réseau & Segmentation
+{% for app in applications %}
+#### Application {{ app.Name }}
+**Zone** : {{ app.Network_Zone or 'N/A' }}
+- **Statut** : {{ app.Status }}
+- **Sécurité** : {{ app.Security_Level or 'Medium' }}
+- **Accès** : {% if app.Network_Zone == 'DMZ' %}Internet + Interne{% elif app.Network_Zone == 'PCI' %}Restreint{% else %}Interne{% endif %}
+- **Contrôles** : Firewall, WAF, DLP
+{% endfor %}
+
+### Matrice des Flux Techniques
+{{ infrastructure_table }}
+
+## 🏗️ Patterns d'Architecture
+
+### Patterns Appliqués
+1. **API Gateway Pattern** : Point d'entrée unique pour tous les clients
+2. **Backend for Frontend (BFF)** : APIs spécialisées par canal
+3. **Event Sourcing** : Traçabilité complète des événements métier
+4. **CQRS** : Séparation commandes/requêtes pour la performance
+5. **Circuit Breaker** : Résilience face aux pannes de dépendances
+
+### Stack Technologique Détaillée
+| Couche | Technologies | Justification |
+|--------|--------------|---------------|
+| **Frontend** | React, TypeScript, Webpack | Écosystème mature, TypeScript pour la maintenabilité |
+| **API Gateway** | Kong, Istio Service Mesh | Performance, sécurité, observabilité |
+| **Backend** | Node.js, Python, Go | Polyglot selon les besoins métier |
+| **Databases** | PostgreSQL, Redis, ElasticSearch | ACID + Cache + Search |
+| **Message Bus** | Apache Kafka, RabbitMQ | Event streaming + Message queuing |
+| **Monitoring** | Prometheus, Grafana, Jaeger | Métriques + Dashboards + Tracing |
+
+## 🚀 Dimensionnement & Performance
+
+### Métriques de Dimensionnement
+| Composant | CPU | Memory | Storage | Network |
+|-----------|-----|--------|---------|---------|
+| APP-WEB | 2 cores | 4GB | 50GB | 1Gbps |
+| APP-INV | 4 cores | 8GB | 200GB | 1Gbps |
+| APP-PAY | 2 cores | 4GB | 100GB | 1Gbps |
+| Database | 8 cores | 32GB | 2TB SSD | 10Gbps |
+
+### Stratégie de Scalabilité
+- **Horizontale** : Auto-scaling Kubernetes (HPA + VPA)
+- **Cache** : Redis Cluster multi-niveaux
+- **CDN** : CloudFlare pour les assets statiques
+- **Database** : Read replicas + Sharding par tenant
+
+---
+
+# 6 · Sécurité & Conformité
+
+## 🛡️ Architecture de Sécurité
+
+### Vue d'Ensemble Sécurité
+```plantuml
+!include diagrams/security_view.puml
+```
+
+### Matrice des Contrôles de Sécurité
+{{ security_table }}
+
+## 🔐 Modèle de Sécurité
+
+### Principes de Sécurité
+1. **Zero Trust** : "Never trust, always verify"
+2. **Defense in Depth** : Sécurité multicouche
+3. **Least Privilege** : Accès minimal nécessaire
+4. **Data Classification** : Protection selon la criticité
+
+### Contrôles par Couche
+| Couche | Contrôles | Technologies |
+|--------|-----------|--------------|
+| **Réseau** | Firewall, WAF, DDoS Protection | CloudFlare, AWS Shield |
+| **Application** | OWASP Top 10, SAST/DAST | SonarQube, OWASP ZAP |
+| **Données** | Chiffrement E2E, Tokenisation | AWS KMS, HashiCorp Vault |
+| **Identité** | MFA, RBAC, SSO | Auth0, Azure AD |
+| **Infrastructure** | CIS Benchmarks, Hardening | Chef InSpec, AWS Config |
+
+### Threat Model & Analyse de Risques
+| Threat Actor | Motivation | Vecteur d'Attaque | Impact | Mitigation |
+|--------------|------------|-------------------|---------|------------|
+| **Cybercriminels** | Financière | SQL Injection, XSS | 🔴 Élevé | WAF, Input Validation |
+| **Insiders** | Malveillance | Privilege Abuse | 🟡 Moyen | RBAC, Monitoring |
+| **APT** | Espionnage | Phishing, Malware | 🔴 Élevé | EDR, Threat Intel |
+
+## 📋 Conformité Réglementaire
+
+### Matrice de Conformité
+| Réglementation | Articles Applicables | Contrôles Implémentés | Gap Analysis |
+|----------------|---------------------|----------------------|--------------|
+| **GDPR** | Art. 25 (Privacy by Design) | Pseudonymisation, Consentement | 🟢 Conforme |
+| **PCI-DSS** | Req. 3 (Protect stored data) | Tokenisation, Chiffrement | 🟡 En cours |
+| **ISO 27001** | A.12.2 (Malware protection) | Antivirus, EDR | 🟢 Conforme |
+
+### Plan de Certification
+1. **Q1 2025** : Audit interne ISO 27001
+2. **Q2 2025** : Assessment PCI-DSS niveau 1
+3. **Q3 2025** : Certification ISO 27001
+4. **Q4 2025** : Audit de surveillance GDPR
+
+---
+
+# 7 · Plan d'Implémentation
+
+## 🚀 Stratégie de Déploiement
+
+### Approche par Phases
+```mermaid
+gantt
+    title Plan de Déploiement
+    dateFormat  YYYY-MM-DD
+    section Phase 1 - MVP
+    Setup Infrastructure    :2025-01-15, 30d
+    Core Services          :2025-02-15, 45d
+    section Phase 2 - Features
+    Advanced Features      :2025-04-01, 60d
+    Integration Tests      :2025-05-15, 30d
+    section Phase 3 - Production
+    UAT                    :2025-06-15, 30d
+    Go-Live               :2025-07-15, 15d
+```
+
+### Roadmap Fonctionnelle
+| Phase | Fonctionnalités | Applications | Timeline |
+|-------|----------------|--------------|----------|
+| **MVP** | Catalogue, Commandes basiques | APP-WEB, APP-INV | 3 mois |
+| **V1** | Paiements, Gestion clients | + APP-PAY, APP-DB | +2 mois |
+| **V2** | Analytics, APIs partenaires | + EXT-API, Analytics | +3 mois |
+
+## 🔄 Stratégie de Migration
+
+### Migration des Données
+1. **Assessment** : Audit des données legacy (2 semaines)
+2. **Mapping** : Cartographie source → cible (1 semaine)
+3. **ETL Development** : Scripts de migration (4 semaines)
+4. **Testing** : Validation sur données test (2 semaines)
+5. **Go-Live** : Migration production (weekend)
+
+### Stratégie de Rollback
+- **Database** : Snapshots avant migration
+- **Applications** : Blue-green deployment
+- **DNS** : Basculement traffic instantané
+- **RTO** : < 15 minutes
+- **RPO** : < 5 minutes
+
+## 🧪 Stratégie de Tests
+
+### Pyramide de Tests
+```mermaid
+graph TB
+    A[Unit Tests - 70%]
+    B[Integration Tests - 20%]
+    C[E2E Tests - 10%]
+    A --> B
+    B --> C
+```
+
+### Types de Tests
+| Type | Couverture Cible | Outils | Automatisation |
+|------|------------------|--------|----------------|
+| **Unit** | 80% | Jest, PyTest | 100% |
+| **Integration** | 70% | Postman, TestNG | 90% |
+| **E2E** | 50% | Cypress, Selenium | 70% |
+| **Performance** | APIs critiques | JMeter, K6 | 100% |
+| **Security** | OWASP Top 10 | OWASP ZAP, Burp | 80% |
+
+---
+
+# 8 · Exploitation & Gouvernance
+
+## 📊 Monitoring & Observabilité
+
+### Stack d'Observabilité
+- **Métriques** : Prometheus + Grafana
+- **Logs** : ELK Stack (ElasticSearch + Logstash + Kibana)
+- **Traces** : Jaeger distributed tracing
+- **APM** : New Relic / Datadog
+- **Uptime** : Pingdom / StatusCake
+
+### SLIs/SLOs
+| Service | SLI | SLO | Error Budget |
+|---------|-----|-----|--------------|
+| API Gateway | Latency P99 | < 500ms | 99.9% |
+| User Auth | Success Rate | > 99.95% | 0.05% |
+| Payment | Availability | > 99.99% | 0.01% |
+
+### Dashboard & Alerting
+```mermaid
+graph LR
+    A[Prometheus] --> B[Grafana]
+    A --> C[AlertManager]
+    C --> D[PagerDuty]
+    C --> E[Slack]
+    B --> F[Business Dashboard]
+```
+
+## 👥 Modèle de Gouvernance
+
+### Matrice RACI
+| Activité | Product Owner | Tech Lead | DevOps | RSSI |
+|----------|---------------|-----------|---------|------|
+| **Roadmap** | A | C | I | I |
+| **Architecture** | C | A | R | C |
+| **Déploiement** | I | R | A | C |
+| **Sécurité** | I | R | R | A |
+| **Incidents** | I | R | A | R |
+
+### Processus de Décision
+1. **RFC (Request for Comments)** : Propositions d'architecture
+2. **ADR (Architecture Decision Records)** : Décisions documentées
+3. **Tech Review** : Validation par les pairs
+4. **Security Review** : Validation RSSI
+5. **Go-Live Approval** : Validation Product Owner
+
+## 📋 Runbook Opérationnel
+
+### Procédures Standard
+| Procédure | Fréquence | Responsable | Outils |
+|-----------|-----------|-------------|--------|
+| **Backup** | Quotidien | DevOps | Automated |
+| **Security Scan** | Hebdomadaire | RSSI | OWASP ZAP |
+| **Performance Test** | Mensuel | QA | JMeter |
+| **DR Test** | Trimestriel | DevOps | Manual |
+
+### Gestion des Incidents
+```mermaid
+graph TB
+    A[Incident Detected] --> B{Severity?}
+    B -->|P1 Critical| C[Page On-Call]
+    B -->|P2 High| D[Create Ticket]
+    B -->|P3 Medium| E[Schedule Fix]
+    C --> F[War Room]
+    F --> G[Root Cause Analysis]
+    G --> H[Post-Mortem]
+```
+
+---
+
+# 9 · Matrices de Traçabilité
+
+## 🎯 Objectifs → Solutions
+
+| Objectif Business | Exigences | Applications | KPIs | Status |
+|-------------------|-----------|--------------|------|--------|
+{% for obj in objectives %}
+| {{ obj.Objective }} | {{ obj.KPI }} ≥ {{ obj.Target }}{{ obj.Unit }} | {% for app in applications if app.Domain in obj.Objective %}{{ app.Name }}{% if not loop.last %}, {% endif %}{% endfor %} | Conversion, Latence | 🟡 En cours |
+{% endfor %}
+
+## 🔄 Processus → Applications → Données
+
+| Processus Métier | Applications | Flux de Données | Contrôles |
+|------------------|--------------|-----------------|-----------|
+{% for proc in businessprocesses %}
+| **{{ proc.Name }}** | {% for flow in flows if flow.BusinessProcess == proc.Name %}{{ flow.Outbound }} → {{ flow.Inbound }}{% if not loop.last %}, {% endif %}{% endfor %} | {% for data in data_entities %}{{ data.Entity }}{% if not loop.last %}, {% endif %}{% endfor %} | {% for flow in flows if flow.BusinessProcess == proc.Name %}{{ flow.Security_Controls or 'Standard' }}{% if not loop.last %}, {% endif %}{% endfor %} |
+{% endfor %}
+
+## 🔐 Sécurité → Conformité
+
+| Zone Réseau | Applications | Contrôles | Réglementations |
+|-------------|--------------|-----------|-----------------|
+{% for app in applications %}
+| **{{ app.Network_Zone or 'N/A' }}** | {{ app.Name }} | {% if app.Network_Zone == 'PCI' %}Tokenisation, HSM{% elif app.Network_Zone == 'DMZ' %}WAF, DDoS{% else %}Firewall, RBAC{% endif %} | {% if app.Network_Zone == 'PCI' %}PCI-DSS{% else %}GDPR, ISO 27001{% endif %} |
+{% endfor %}
+
+## 📊 Risques → Mitigations
+
+| Risque | Impact | Probabilité | Mitigation | Responsable |
+|--------|---------|-------------|------------|-------------|
+| **Breach PCI** | 🔴 Critique | 🟡 Moyen | Tokenisation, Monitoring | RSSI |
+| **Performance** | 🟡 Moyen | 🟢 Faible | Auto-scaling, Cache | Tech Lead |
+| **Compliance** | 🔴 Critique | 🟡 Moyen | Audit régulier, Formation | DPO |
+
+---
+
+# 10 · Annexes
+
+## 📚 Références & Standards
+
+### Standards Architecturaux
+- **TOGAF 9.2** : Framework d'architecture d'entreprise
+- **C4 Model** : Modélisation architecture logicielle
+- **12-Factor App** : Principes applications cloud-native
+- **Microservices Patterns** : Sam Newman, Chris Richardson
+
+### Standards Techniques
+- **OpenAPI 3.0** : Spécification des APIs REST
+- **OAuth 2.1** : Framework d'autorisation
+- **WCAG 2.1** : Accessibilité web
+- **OWASP Top 10** : Risques sécurité applicative
+
+### Standards Sécurité & Conformité
+- **ISO 27001:2022** : Management sécurité information
+- **NIST Cybersecurity Framework** : Framework cybersécurité
+- **PCI-DSS 4.0** : Sécurité données de cartes de paiement
+- **GDPR** : Règlement général protection des données
+
+## 🎯 Architecture Decision Records (ADRs)
+
+### ADR-001 : Choix Architecture Microservices
+**Status** : ✅ Accepté  
+**Context** : Besoin de scalabilité et d'agilité  
+**Decision** : Microservices avec API Gateway  
+**Consequences** : +Scalabilité, +Complexité opérationnelle  
+
+### ADR-002 : Stratégie Multi-Zone
+**Status** : ✅ Accepté  
+**Context** : Exigences sécurité et conformité  
+**Decision** : Segmentation DMZ/PCI/INTERNE  
+**Consequences** : +Sécurité, +Complexité réseau  
+
+### ADR-003 : Event-Driven Architecture
+**Status** : 🟡 Proposé  
+**Context** : Découplage des composants  
+**Decision** : Apache Kafka pour event streaming  
+**Consequences** : +Résilience, +Courbe d'apprentissage  
+
+## 📖 Glossaire
+
+| Terme | Définition |
+|-------|------------|
+| **API Gateway** | Point d'entrée unique pour toutes les APIs |
+| **BFF** | Backend for Frontend - API spécialisée par client |
+| **CQRS** | Command Query Responsibility Segregation |
+| **DDD** | Domain Driven Design - conception pilotée par le domaine |
+| **Event Sourcing** | Persistance des événements plutôt que de l'état |
+| **JWT** | JSON Web Token - standard de token sécurisé |
+| **RBAC** | Role-Based Access Control - contrôle d'accès par rôles |
+| **SLA** | Service Level Agreement - accord niveau de service |
+
+## 🔍 Hypothèses & Contraintes
+
+### Hypothèses Techniques
+- [ ] APIs partenaires disponibles 99.9% du temps
+- [ ] Capacité réseau suffisante pour le pic de charge
+- [ ] Équipes formées sur les technologies choisies
+- [ ] Environnements cloud disponibles dans les délais
+
+### Contraintes Identifiées
+- [ ] **Budget** : 150K€ non extensible
+- [ ] **Timeline** : Go-Live fixé au {{ constraints | selectattr('Milestone', 'equalto', 'Go‑Live') | map(attribute='Date') | first }}
+- [ ] **Régulation** : Conformité PCI-DSS obligatoire
+- [ ] **Legacy** : Migration données sans interruption service
+
+## 📞 Contacts & Responsabilités
+
+| Rôle | Contact | Téléphone | Email |
+|------|---------|-----------|--------|
+| **Product Owner** | TBD | +33.X.XX.XX.XX.XX | po@company.com |
+| **Tech Lead** | TBD | +33.X.XX.XX.XX.XX | techlead@company.com |
+| **RSSI** | TBD | +33.X.XX.XX.XX.XX | rssi@company.com |
+| **DevOps Lead** | TBD | +33.X.XX.XX.XX.XX | devops@company.com |
+
+---
+
+> **Document généré automatiquement** par sheet-to-architecture  
+> **Dernière mise à jour** : {{ project.get('Date', '15/01/2025') }} à 14:30  
+> **Version** : 1.0
