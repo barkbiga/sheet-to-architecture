@@ -35,24 +35,14 @@
 
 ### Diagramme de Contexte Système
 ```plantuml
-!include diagrams/context_diagram.puml
-```
-
-### Diagramme C4 - Contexte
-```plantuml
 !include diagrams/c4_context.puml
 ```
 
-### Schéma de Principe Détaillé
-```plantuml
-!include diagrams/overview.puml
-```
-
 ### Décisions Architecturales Majeures
-1. **Architecture microservices** pour la scalabilité et la résilience
-2. **API-First approach** pour l'interopérabilité
-3. **Multi-zone deployment** pour la sécurité et la conformité
-4. **Event-driven patterns** pour le découplage
+{% for pat in patternsandprincipes %}
+- **{{ pat.Name }}
+{% endfor %}
+
 
 ## 🚦 Recommandation & Next Steps
 
@@ -96,12 +86,6 @@
 | RSSI | TBD | Sécurité | Validation sécurité |
 | DSI | TBD | IT | Implémentation |
 
-### Équipes Projet
-| Équipe | Département | Responsabilité |
-|--------|-------------|----------------|
-{% for app in applications %}
-| {{ app.Name }} | {{ app.Domain or app.Department or 'N/A' }} | {{ app.Description or 'Application' }} |
-{% endfor %}
 
 ## ⏱️ Contraintes & Dépendances
 
@@ -118,9 +102,7 @@
 {% endfor %}
 
 ### Dépendances Externes
-- Validation réglementaire (CNIL, PCI-DSS)
-- APIs partenaires externes
-- Migration données legacy
+- Validation réglementaire ( PCI-DSS)
 
 ---
 
@@ -132,7 +114,7 @@
 | ID | Processus | Description | Acteurs | Criticité |
 |----|-----------|-------------|---------|-----------|
 {% for proc in businessprocesses %}
-| {{ proc.ID }} | **{{ proc.Name }}** | {{ proc.Description }} | {{ proc.Actors }} | 🟡 Standard |
+| {{ proc.ID | clean_nan }} | **{{ proc.Name | clean_nan }}** | {{ proc.Description | clean_nan }} | {{ proc.Actors | clean_nan }} | 🟡 Standard |
 {% endfor %}
 
 ### Matrice Fonctionnelle
@@ -157,7 +139,6 @@
 ### Exigences de Conformité
 | Réglementation | Périmètre | Contrôles Requis | Responsable |
 |----------------|-----------|------------------|-------------|
-| GDPR | Données personnelles | Consentement, Portabilité | DPO |
 | PCI-DSS | Données de paiement | Tokenisation, Audit | RSSI |
 
 ---
@@ -178,13 +159,7 @@
 | **{{ capability.Domain }}** | {{ capability.Name }} | {{ capability.Level }} | {{ capability.Description }} | {{ capability.Applications }} |
 {% endfor %}
 {% else %}
-```mermaid
-graph TB
-    A[Gestion Catalogue] --> B[Gestion Commandes]
-    B --> C[Gestion Paiements]
-    C --> D[Livraison]
-    A --> E[CRM Client]
-```
+Non renseigné
 {% endif %}
 
 ### Flux de Valeur
@@ -193,16 +168,13 @@ graph TB
 !include diagrams/value_streams.puml
 ```
 
-| Flux de Valeur | Étapes | Capacités Requises | Lead Time |
-|----------------|--------|-------------------|-----------|
+| Flux de Valeur | Description | Étapes | Capacités Requises |
+|----------------|-------------|--------|-------------------|
 {% for stream in valuestreams %}
-| **{{ stream.Name }}** | {{ stream.Steps }} | {{ stream.Capabilities }} | {{ stream.LeadTime }} |
+| **{{ stream.Name | clean_nan }}** | {{ stream.Description | clean_nan }} | {{ stream.Steps | format_steps }} | {{ stream.Capabilities | clean_nan }} |
 {% endfor %}
 {% else %}
-1. **Découverte** : Client browse le catalogue
-2. **Sélection** : Client ajoute au panier
-3. **Commande** : Client valide et paye
-4. **Fulfillment** : Préparation et livraison
+Non renseigné
 {% endif %}
 
 ## 🖥️ Vue Applicative (Application View)
@@ -213,12 +185,12 @@ graph TB
 ```
 
 ### Matrice Application-Processus
-| Application Métier | Application | Processus Supportés | Statut | Criticité |
-|-------------------|-------------|---------------------|--------|-----------|
+| Application Métier | Application | Processus Supportés | Statut |
+|--------------------|-------------|---------------------|--------|
 {% set business_apps = applications | groupby('BusinessApp') %}
 {% for business_app, apps_list in business_apps %}
 {% for app in apps_list %}
-| {% if loop.first %}**{{ business_app }}**{% endif %} | **{{ app.Name }}** | {% for proc in businessprocesses %}{% if app.ID in flows | selectattr('BusinessProcess', 'equalto', proc.Name) | map(attribute='Outbound') | list %}{{ proc.Name }}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %} | {{ app.Status }} | {{ app.Security_Level or 'Medium' }} |
+| {% if loop.first %}**{{ business_app }}**{% endif %} | **{{ app.Name }}** | {% for proc in businessprocesses %}{% if app.ID in flows | selectattr('BusinessProcess', 'equalto', proc.Name) | map(attribute='Outbound') | list %}{{ proc.Name }}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %} | {{ app.Status }} |
 {% endfor %}
 {% endfor %}
 
@@ -229,11 +201,7 @@ graph TB
 ```
 {% endif %}
 
-### Architecture Cible Simplifiée
-- **Frontend** : SPA React (APP-WEB)
-- **Backend** : Microservices REST (APP-INV, APP-PAY)
-- **Données** : PostgreSQL + Redis
-- **Intégrations** : API Gateway + Message Bus
+
 
 ## 🗄️ Vue Données (Data View)
 
@@ -241,7 +209,7 @@ graph TB
 | Entité | Description | Classification | Rétention |
 |--------|-------------|----------------|-----------|
 {% for data in data_entities %}
-| **{{ data.Entity }}** | {{ data.Description }} | {{ data.Classification }} | {{ data.RetentionPeriod }}  |
+| **{{ data.Entity | clean_nan }}** | {{ data.Description | clean_nan }} | {{ data.Classification | clean_nan }} | {{ data.RetentionPeriod | clean_nan }}  |
 {% endfor %}
 
 
@@ -254,20 +222,24 @@ graph TB
 ## 🏗️ Patterns d'Architecture
 
 ### Patterns Appliqués
-1. **API Gateway Pattern** : Point d'entrée unique pour tous les clients
-2. **Backend for Frontend (BFF)** : APIs spécialisées par canal
-3. **Event Sourcing** : Traçabilité complète des événements métier
-4. **CQRS** : Séparation commandes/requêtes pour la performance
-5. **Circuit Breaker** : Résilience face aux pannes de dépendances
+{% for pat in patternsandprincipes %}
+- **{{ pat.Name }}
+{% endfor %}
+
+```plantuml
+!include diagrams/c4_context.puml
+```
 
 ##· Solution détaillée – & vues processus
 
 ### Vues par processus métier
 {% for p in businessprocesses %}
-#### {{ p.ID }} – {{ p.Name }}
+{% if p.ID | clean_nan and p.Name | clean_nan %}
+#### {{ p.ID | clean_nan }} – {{ p.Name | clean_nan }}
 ```plantuml
-!include diagrams/process_{{ p.ID }}.puml
+!include diagrams/process_{{ p.ID | clean_nan }}.puml
 ```
+{% endif %}
 {% endfor %}
 ---
 
@@ -284,7 +256,7 @@ graph TB
 | Layer | Service |Zone |Description |
 |-------|---------|-----|------------|
 {% for r in infra %}
-| {{ r.Layer }} | {{ r.Service }} | {{ r.Zone }} |{{ r.Description }} |
+| {{ r.Layer | clean_nan }} | {{ r.Service | clean_nan }} | {{ r.Zone | clean_nan }} | {{ r.Description | clean_nan }} |
 {% endfor %}
 
 
@@ -325,9 +297,7 @@ graph TB
 ### Matrice de Conformité
 | Réglementation | Articles Applicables | Contrôles Implémentés | Gap Analysis |
 |----------------|---------------------|----------------------|--------------|
-| **GDPR** | Art. 25 (Privacy by Design) | Pseudonymisation, Consentement | 🟢 Conforme |
 | **PCI-DSS** | Req. 3 (Protect stored data) | Tokenisation, Chiffrement | 🟡 En cours |
-| **ISO 27001** | A.12.2 (Malware protection) | Antivirus, EDR | 🟢 Conforme |
 
 ---
 
@@ -345,8 +315,6 @@ graph TB
 | Service | SLI | SLO | Error Budget |
 |---------|-----|-----|--------------|
 | API Gateway | Latency P99 | < 500ms | 99.9% |
-| User Auth | Success Rate | > 99.95% | 0.05% |
-| Payment | Availability | > 99.99% | 0.01% |
 
 ---
 > **Version** : 1.0

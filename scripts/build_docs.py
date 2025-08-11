@@ -28,16 +28,50 @@ def load_ctx(xlsx):
         ctx[s] = ctx[s.lower()]
     return ctx
 
+def clean_nan(value):
+    """Remplace les valeurs nan/null par une chaîne vide"""
+    try:
+        if value is None or (pd.notna(value) == False) or str(value).lower() in ['nan', 'none', 'null']:
+            return ''
+    except:
+        # Si on ne peut pas tester avec pandas, utiliser une approche simple
+        if value is None or str(value).lower() in ['nan', 'none', 'null']:
+            return ''
+    return str(value)
+
+def format_steps(value):
+    """Formate les étapes de valuestream pour meilleure lisibilité"""
+    try:
+        if value is None or (pd.notna(value) == False) or str(value).lower() in ['nan', 'none', 'null']:
+            return ''
+    except:
+        if value is None or str(value).lower() in ['nan', 'none', 'null']:
+            return ''
+    
+    # Remplacer les virgules par des puces avec retour à la ligne
+    steps = str(value).split(',')
+    if len(steps) > 1:
+        return '<br/>• ' + '<br/>• '.join(step.strip() for step in steps)
+    return str(value)
+
 def render(tpl_name, ctx, out_path):
     env = Environment(loader=FileSystemLoader(TPL_DIR),
                       trim_blocks=True, lstrip_blocks=True)
+    
+    # Ajouter des filtres personnalisés
+    env.filters['clean_nan'] = clean_nan
+    env.filters['format_steps'] = format_steps
     
     text = env.get_template(tpl_name).render(**ctx)
     out_path.write_text(text, encoding='utf-8')
 
 # Fonction copy_diagrams supprimée - les diagrammes sont déjà dans generated/diagrams
 
-def main(xlsx):
+def main(xlsx, output_dir=None, diagrams_dir=None):
+    # Définir les répertoires de sortie
+    out_path = pathlib.Path(output_dir) if output_dir else OUT
+    diag_path = pathlib.Path(diagrams_dir) if diagrams_dir else DIAG
+    
     ctx = load_ctx(xlsx)
     
     # Enrichir le contexte avec les tableaux infrastructure et sécurité
@@ -61,7 +95,7 @@ def main(xlsx):
             if pd.isna(app.get('BusinessApp')):
                 app['BusinessApp'] = 'Non défini'
     
-    OUT.mkdir(exist_ok=True, parents=True)
+    out_path.mkdir(exist_ok=True, parents=True)
     files = [('architecture_simplified.md.j2','architecture.md'),
 #             ('architecture_full_improved.md.j2','architecture_complete.md'),
              ('executive_summary.md.j2','executive_summary.md'),
@@ -74,12 +108,15 @@ def main(xlsx):
     for tpl, name in files:
         # Ignorer les templates qui n'existent pas encore
         if (TPL_DIR / tpl).exists():
-            render(tpl, ctx, OUT / name)
+            render(tpl, ctx, out_path / name)
     # copy_diagrams() supprimé - les diagrammes sont déjà dans generated/diagrams
     print('✅ Documents générés :', ", ".join([f[1] for f in files]))
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('-i','--input',default='petstore_archi_v3.xlsx')
+    ap.add_argument('-o','--output', help='Répertoire de sortie pour la documentation')
     args = ap.parse_args()
-    main(pathlib.Path(args.input))
+    
+    # Appeler main avec les répertoires de sortie
+    main(pathlib.Path(args.input), args.output, args.output + '/diagrams' if args.output else None)

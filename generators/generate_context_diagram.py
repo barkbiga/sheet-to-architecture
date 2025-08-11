@@ -46,9 +46,26 @@ def create_subdomains_by_zone(apps_df):
     """Crée des sous-domaines quand un domaine traverse plusieurs zones réseau"""
     subdomains = {}
     
+    # Ajouter une valeur par défaut pour les zones manquantes avec warning
+    if 'Network_Zone' not in apps_df.columns:
+        print("⚠️  WARNING: Colonne 'Network_Zone' manquante, utilisation de 'INTERNE' par défaut")
+        apps_df = apps_df.copy()
+        apps_df['Network_Zone'] = 'INTERNE'
+    else:
+        # Remplacer les valeurs null par défaut avec warning
+        missing_zones = apps_df['Network_Zone'].isna().sum()
+        if missing_zones > 0:
+            missing_apps = apps_df[apps_df['Network_Zone'].isna()]['ID'].tolist()
+            print(f"⚠️  WARNING: {missing_zones} applications sans zone réseau: {', '.join(missing_apps[:5])}{'...' if len(missing_apps) > 5 else ''}")
+            print("   → Utilisation de 'INTERNE' par défaut")
+            apps_df = apps_df.copy()
+            apps_df['Network_Zone'] = apps_df['Network_Zone'].fillna('INTERNE')
+    
     for domain in apps_df['Domain'].dropna().unique():
         domain_apps = apps_df[apps_df['Domain'] == domain]
         zones = domain_apps['Network_Zone'].unique()
+        # Filtrer les zones null/NaN
+        zones = [z for z in zones if pd.notna(z)]
         
         if len(zones) > 1:
             # Créer des sous-domaines par zone
@@ -64,10 +81,11 @@ def create_subdomains_by_zone(apps_df):
                 }
         else:
             # Garder le domaine unique
+            default_zone = zones[0] if len(zones) > 0 else 'INTERNE'
             subdomains[domain] = {
                 'name': domain,
                 'original_domain': domain, 
-                'zone': zones[0] if len(zones) > 0 else 'UNKNOWN',
+                'zone': default_zone,
                 'apps': domain_apps,
                 'is_subdomain': False
             }
@@ -190,7 +208,9 @@ def generate_c4_context_diagram(data):
             name = subdomain_info['name']
             
             # Vérifier si c'est externe (basé sur les apps SaaS de ce sous-domaine)
-            is_external = any(subdomain_info['apps'].get('Status', '') == 'SaaS')
+            is_external = False
+            if 'Status' in subdomain_info['apps'].columns:
+                is_external = any(subdomain_info['apps']['Status'].fillna('') == 'SaaS')
             
             if is_external:
                 puml.append(f'  rectangle "{name}" as {plantuml_id} <<external>>')

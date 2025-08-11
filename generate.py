@@ -76,8 +76,9 @@ Exemples d'utilisation:
     
     # Gestion des répertoires de sortie
     if args.output_dir:
-        output_diagrams = Path(args.output_dir) / 'diagrams'
-        output_docs = Path(args.output_dir)
+        base_output = Path(args.output_dir)
+        output_diagrams = base_output / 'diagrams'
+        output_docs = base_output / 'docs'
     else:
         output_diagrams = Path(args.output_diagrams) if args.output_diagrams else Path('generated/diagrams')
         output_docs = Path(args.output_docs) if args.output_docs else Path('generated')
@@ -141,7 +142,7 @@ Exemples d'utilisation:
             success &= run_command(cmd, "Diagrammes d'aperçu et processus")
         
         if any(t in diagram_types for t in ['infrastructure', 'security']):
-            cmd = ['python3', 'generators/generate_infrastructure_diagrams.py', '-i', str(input_file)] + generator_options
+            cmd = ['python3', 'generators/generate_infrastructure_diagrams.py', '-i', str(input_file), '-o', str(output_diagrams)] + generator_options
             success &= run_command(cmd, "Diagrammes infrastructure et sécurité")
         
         if 'capabilities' in diagram_types:
@@ -154,7 +155,7 @@ Exemples d'utilisation:
         
         # Le script build_docs.py génère toute la documentation
         # On peut l'appeler avec des paramètres pour filtrer
-        cmd = ['python3', 'scripts/build_docs.py', '-i', str(input_file)]
+        cmd = ['python3', 'scripts/build_docs.py', '-i', str(input_file), '-o', str(output_docs)]
         success &= run_command(cmd, "Documentation complète")
         
         # Filtrage post-génération si nécessaire
@@ -173,7 +174,7 @@ Exemples d'utilisation:
             for doc_type, files in all_docs.items():
                 if doc_type not in doc_types:
                     for file in files:
-                        file_path = Path(args.output_docs) / file
+                        file_path = output_docs / file
                         if file_path.exists():
                             file_path.unlink()
                             print(f"  🗑️  Supprimé: {file}")
