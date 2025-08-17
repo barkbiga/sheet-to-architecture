@@ -1,0 +1,37 @@
+# 9 · Glossaire
+
+## 📖 Termes et Définitions
+
+{% if glossaire %}
+### Termes par Catégorie
+
+{% set categories = glossaire | groupby('Categorie') %}
+{% for categorie, termes in categories %}
+#### {{ categorie }}
+
+{% for terme in termes %}
+**{{ terme.Terme | clean_nan }}**
+: {{ terme.Definition | clean_nan }}
+{% if terme.Synonymes | clean_nan and terme.Synonymes != 'nan' %}
+  
+  *Synonymes* : {{ terme.Synonymes | clean_nan }}
+{% endif %}
+{% if terme.References | clean_nan and terme.References != 'nan' %}
+  
+  *Référence* : [{{ terme.References | clean_nan }}]({{ terme.References | clean_nan }})
+{% endif %}
+
+{% endfor %}
+{% endfor %}
+
+### Index Alphabétique
+
+{% for terme in glossaire | sort(attribute='Terme') %}
+- **{{ terme.Terme | clean_nan }}** : {{ terme.Definition | clean_nan | truncate(100) }}
+{% endfor %}
+
+{% else %}
+*Aucun terme défini dans le glossaire. Veuillez ajouter des termes dans l'onglet 'Glossaire' du fichier Excel.*
+{% endif %}
+
+---

@@ -1,5 +1,5 @@
 pandas>=2.0
 openpyxl>=3.1
 jinja2>=3.1.2
-plantuml-python>=1.2024.10
+plantuml
 python-pptx>=0.6.2

@@ -15,7 +15,9 @@
 4. [Vues d'Architecture](#4--vues-darchitecture)
 5. [Architecture Technique](#5--architecture-technique)
 6. [Sécurité & Conformité](#6--sécurité--conformité)
-7. [Sécurité & Exploitation](#7--sécurité--exploitation)
+7. [Glossaire](#7--glossaire)
+8. [Documents de Référence](#8--documents-de-référence)
+9. [Historique des Révisions](#9--historique-des-révisions)
 
 ---
 
@@ -243,7 +245,7 @@ Non renseigné
 {% endfor %}
 ---
 
-# 6 · Architecture Technique
+# 5 · Architecture Technique
 
 ## 🌐 Vue Infrastructure
 
@@ -268,7 +270,7 @@ Non renseigné
 
 ---
 
-# 7 · Sécurité & Conformité
+# 6 · Sécurité & Conformité
 
 ## 🛡️ Architecture de Sécurité
 
@@ -280,7 +282,7 @@ Non renseigné
 ### Matrice des Contrôles de Sécurité
 {{ security_table }}
 
-## 🔐 Modèle de Sécurité
+## 🔐 Modèle de Sécurité & Zones Réseau
 
 ### Contrôles par Couche
 | Couche | Contrôles | Technologies |
@@ -291,6 +293,27 @@ Non renseigné
 | **Identité** | MFA, RBAC, SSO | Auth0, Azure AD |
 | **Infrastructure** | CIS Benchmarks, Hardening | Chef InSpec, AWS Config |
 
+### Segmentation Sécurité
+
+#### Zones Réseau
+- **DMZ** : Services exposés (Web, API Gateway)
+- **INTERNE** : Services métier et données
+- **PCI** : Traitement des paiements sécurisé
+
+## 📊 Monitoring & Observabilité
+
+### Stack d'Observabilité
+- **Métriques** : Prometheus, Grafana
+- **Logs** : ELK Stack (Elasticsearch, Logstash, Kibana)
+- **Traces** : Jaeger, OpenTelemetry
+- **Alerting** : PagerDuty, Slack
+
+### SLIs/SLOs Essentiels
+| Service | SLI | SLO | Error Budget |
+|---------|-----|-----|--------------|
+| API Gateway | Latence p99 | < 200ms | 0.1% downtime |
+| Payment Service | Disponibilité | 99.9% | 43min/mois |
+| User Service | Taux d'erreur | < 0.1% | 1000 erreurs/jour |
 
 ## 📋 Conformité Réglementaire
 
@@ -298,23 +321,155 @@ Non renseigné
 | Réglementation | Articles Applicables | Contrôles Implémentés | Gap Analysis |
 |----------------|---------------------|----------------------|--------------|
 | **PCI-DSS** | Req. 3 (Protect stored data) | Tokenisation, Chiffrement | 🟡 En cours |
+| **GDPR** | Art. 32 (Security of processing) | Pseudonymisation, Chiffrement | 🟢 Conforme |
+| **ISO 27001** | A.12.1 (Operational procedures) | Procédures documentées | 🟡 En cours |
 
 ---
 
-# 8 · Sécurité & Exploitation
+# 7 · Glossaire
 
-## 🔐 Zones Réseau & Contrôles
+## 📖 Termes et Définitions
 
-### Segmentation Sécurité
+{% if glossaire %}
+### Termes par Catégorie
 
-## 📊 Monitoring & Observabilité
+{% set categories = glossaire | groupby('Categorie') %}
+{% for categorie, termes in categories %}
+#### {{ categorie }}
 
-### Stack d'Observabilité
+{% for terme in termes %}
+**{{ terme.Terme | clean_nan }}**
+: {{ terme.Definition | clean_nan }}
+{% if terme.Synonymes | clean_nan and terme.Synonymes != 'nan' %}
+  
+  *Synonymes* : {{ terme.Synonymes | clean_nan }}
+{% endif %}
+{% if terme.References | clean_nan and terme.References != 'nan' %}
+  
+  *Référence* : [{{ terme.References | clean_nan }}]({{ terme.References | clean_nan }})
+{% endif %}
 
-### SLIs/SLOs Essentiels
-| Service | SLI | SLO | Error Budget |
-|---------|-----|-----|--------------|
-| API Gateway | Latency P99 | < 500ms | 99.9% |
+{% endfor %}
+{% endfor %}
+
+### Index Alphabétique
+
+{% for terme in glossaire | sort(attribute='Terme') %}
+- **{{ terme.Terme | clean_nan }}** : {{ terme.Definition | clean_nan | truncate(100) }}
+{% endfor %}
+
+{% else %}
+*Aucun terme défini dans le glossaire. Veuillez ajouter des termes dans l'onglet 'Glossaire' du fichier Excel.*
+{% endif %}
+
+# 8 · Documents de Référence
+
+## 📚 Références et Standards Appliqués
+
+{% if references %}
+
+### Documents par Catégorie
+
+{% set categories = references | groupby('Categorie') %}
+{% for categorie, docs in categories %}
+#### {{ categorie }}
+
+{% for doc in docs %}
+**{{ doc.ID | clean_nan }} - {{ doc.Titre | clean_nan }}**
+{% if doc.Statut | clean_nan == 'Obligatoire' %}🔴{% elif doc.Statut | clean_nan == 'Applicable' %}🟡{% else %}🟢{% endif %}
+
+- **Type** : {{ doc.Type | clean_nan }}
+- **Version** : {{ doc.Version | clean_nan }}
+- **Date** : {{ doc.Date_Publication | clean_nan }}
+- **Pertinence** : {{ doc.Pertinence_Projet | clean_nan }}
+- **Description** : {{ doc.Description | clean_nan }}
+{% if doc.URL | clean_nan and doc.URL != 'nan' %}
+- **Lien** : [{{ doc.URL | clean_nan }}]({{ doc.URL | clean_nan }})
+{% endif %}
+
+{% endfor %}
+{% endfor %}
+
+### Matrice de Conformité
+
+| Référence | Titre | Statut | Pertinence Projet |
+|-----------|-------|--------|-------------------|
+{% for doc in references %}
+| {{ doc.ID | clean_nan }} | **{{ doc.Titre | clean_nan }}** | {% if doc.Statut | clean_nan == 'Obligatoire' %}🔴 {{ doc.Statut | clean_nan }}{% elif doc.Statut | clean_nan == 'Applicable' %}🟡 {{ doc.Statut | clean_nan }}{% else %}🟢 {{ doc.Statut | clean_nan }}{% endif %} | {{ doc.Pertinence_Projet | clean_nan }} |
+{% endfor %}
+
+### Légende des Statuts
+
+- 🔴 **Obligatoire** : Conformité requise (réglementation, standards de sécurité)
+- 🟡 **Applicable** : Standards et frameworks appliqués au projet
+- 🟢 **Recommandé** : Bonnes pratiques et guides de référence
+
+{% else %}
+*Aucune référence définie. Veuillez ajouter des documents dans l'onglet 'References' du fichier Excel.*
+{% endif %}
+
+# 9 · Historique des Révisions
+
+## 📝 Contrôle de Version du Document
+
+{% if revisions %}
+
+### Informations de Version Actuelle
+
+{% set latest_revision = revisions | sort(attribute='Version') | last %}
+- **Version actuelle** : {{ latest_revision.Version | clean_nan }}
+- **Date de dernière modification** : {{ latest_revision.Date | clean_nan }}
+- **Auteur** : {{ latest_revision.Auteur | clean_nan }}
+- **Statut** : {% if latest_revision.Statut | clean_nan == 'Approuvé' %}🟢{% elif latest_revision.Statut | clean_nan == 'En révision' %}🟡{% else %}🔴{% endif %} {{ latest_revision.Statut | clean_nan }}
+
+### Historique Complet des Révisions
+
+| Version | Date | Auteur | Type | Description | Statut |
+|---------|------|--------|------|-------------|--------|
+{% for revision in revisions | sort(attribute='Version') %}
+| **{{ revision.Version | clean_nan }}** | {{ revision.Date | clean_nan }} | {{ revision.Auteur | clean_nan }} | {{ revision.Type_Modification | clean_nan }} | {{ revision.Description_Modifications | clean_nan }} | {% if revision.Statut | clean_nan == 'Approuvé' %}🟢{% elif revision.Statut | clean_nan == 'En révision' %}🟡{% else %}🔴{% endif %} {{ revision.Statut | clean_nan }} |
+{% endfor %}
+
+### Modifications par Type
+
+{% set types_modif = revisions | groupby('Type_Modification') %}
+{% for type_modif, revisions_list in types_modif %}
+#### {{ type_modif }}
+
+{% for revision in revisions_list %}
+- **v{{ revision.Version | clean_nan }}** ({{ revision.Date | clean_nan }}) : {{ revision.Description_Modifications | clean_nan }}
+  - *Sections impactées* : {{ revision.Sections_Impactees | clean_nan }}
+  - *Impact projet* : {{ revision.Impact_Projet | clean_nan }}
+{% if revision.Actions_Requises | clean_nan and revision.Actions_Requises != 'nan' %}
+  - *Actions requises* : {{ revision.Actions_Requises | clean_nan }}
+{% endif %}
+
+{% endfor %}
+{% endfor %}
+
+### Matrice d'Approbation
+
+| Version | Date | Type Modification | Approbateur | Statut | Actions Requises |
+|---------|------|-------------------|-------------|--------|------------------|
+{% for revision in revisions | sort(attribute='Version') %}
+| {{ revision.Version | clean_nan }} | {{ revision.Date | clean_nan }} | {{ revision.Type_Modification | clean_nan }} | {{ revision.Approbateur | clean_nan }} | {% if revision.Statut | clean_nan == 'Approuvé' %}🟢 {{ revision.Statut | clean_nan }}{% elif revision.Statut | clean_nan == 'En révision' %}🟡 {{ revision.Statut | clean_nan }}{% else %}🔴 {{ revision.Statut | clean_nan }}{% endif %} | {{ revision.Actions_Requises | clean_nan }} |
+{% endfor %}
+
+### Légende des Statuts
+
+- 🟢 **Approuvé** : Version validée et officielle
+- 🟡 **En révision** : Version en cours de validation
+- 🔴 **Rejeté** : Version non validée, modifications requises
+
+### Prochaines Révisions Planifiées
+
+- [ ] **v{{ (latest_revision.Version | float + 0.1) | round(1) }}** : Mise à jour post-audit de sécurité
+- [ ] **v{{ (latest_revision.Version | float + 0.2) | round(1) }}** : Intégration des retours utilisateurs
+- [ ] **v{{ (latest_revision.Version | float + 1.0) | round(1) }}** : Évolution majeure avec nouvelles capacités
+
+{% else %}
+*Aucune révision définie. Veuillez ajouter l'historique des modifications dans l'onglet 'Revisions' du fichier Excel.*
+{% endif %}
 
 ---
-> **Version** : 1.0
+> **Version** : 3.0

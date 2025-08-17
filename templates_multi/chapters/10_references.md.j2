@@ -1,0 +1,47 @@
+# 10 · Documents de Référence
+
+## 📚 Références et Standards Appliqués
+
+{% if references %}
+
+### Documents par Catégorie
+
+{% set categories = references | groupby('Categorie') %}
+{% for categorie, docs in categories %}
+#### {{ categorie }}
+
+{% for doc in docs %}
+**{{ doc.ID | clean_nan }} - {{ doc.Titre | clean_nan }}**
+{% if doc.Statut | clean_nan == 'Obligatoire' %}🔴{% elif doc.Statut | clean_nan == 'Applicable' %}🟡{% else %}🟢{% endif %}
+
+- **Type** : {{ doc.Type | clean_nan }}
+- **Version** : {{ doc.Version | clean_nan }}
+- **Date** : {{ doc.Date_Publication | clean_nan }}
+- **Pertinence** : {{ doc.Pertinence_Projet | clean_nan }}
+- **Description** : {{ doc.Description | clean_nan }}
+{% if doc.URL | clean_nan and doc.URL != 'nan' %}
+- **Lien** : [{{ doc.URL | clean_nan }}]({{ doc.URL | clean_nan }})
+{% endif %}
+
+{% endfor %}
+{% endfor %}
+
+### Matrice de Conformité
+
+| Référence | Titre | Statut | Pertinence Projet |
+|-----------|-------|--------|-------------------|
+{% for doc in references %}
+| {{ doc.ID | clean_nan }} | **{{ doc.Titre | clean_nan }}** | {% if doc.Statut | clean_nan == 'Obligatoire' %}🔴 {{ doc.Statut | clean_nan }}{% elif doc.Statut | clean_nan == 'Applicable' %}🟡 {{ doc.Statut | clean_nan }}{% else %}🟢 {{ doc.Statut | clean_nan }}{% endif %} | {{ doc.Pertinence_Projet | clean_nan }} |
+{% endfor %}
+
+### Légende des Statuts
+
+- 🔴 **Obligatoire** : Conformité requise (réglementation, standards de sécurité)
+- 🟡 **Applicable** : Standards et frameworks appliqués au projet
+- 🟢 **Recommandé** : Bonnes pratiques et guides de référence
+
+{% else %}
+*Aucune référence définie. Veuillez ajouter des documents dans l'onglet 'References' du fichier Excel.*
+{% endif %}
+
+---

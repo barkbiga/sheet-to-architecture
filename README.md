@@ -2,6 +2,70 @@
 
 Générateur de diagrammes d'architecture et de documentation à partir de fichiers Excel.
 
+## 🆕 Nouveautés
+
+### Version 3.0 - Janvier 2025 🎉
+
+**Évolutions majeures :**
+- ✅ **Glossaire intégré** : Onglet Excel et section documentation pour définir les termes techniques
+- ✅ **Documents de référence** : Onglet Excel et section pour tracer les standards et réglementations
+- ✅ **Historique des révisions** : Onglet Excel et section pour le versioning complet du projet
+- ✅ **Templates enrichis** : Nouvelles sections dans l'architecture avec table des matières mise à jour
+
+**Fichiers ajoutés :**
+- `templates_multi/chapters/09_glossaire.md.j2` - Template glossaire
+- `templates_multi/chapters/10_references.md.j2` - Template références  
+- `templates_multi/chapters/11_revisions.md.j2` - Template révisions
+- Scripts d'ajout des nouveaux onglets Excel
+
+**Impact utilisateur :**
+- 📚 Documentation plus complète et professionnelle
+- 🔍 Traçabilité des standards appliqués
+- 📝 Suivi des évolutions du projet
+- 🎯 Meilleure compréhension des termes techniques
+
+### Version 2.2 - Septembre 2024
+
+**Optimisations :**
+- 🔧 Correction des incohérences dans les flux de données
+- 📊 Mise à jour de la matrice de traçabilité
+- 🎨 Amélioration de la lisibilité des diagrammes
+
+### Version 2.1 - Juillet 2024
+
+**Performance :**
+- ⚡ Optimisation des performances des diagrammes
+- 📈 Ajout des métriques de monitoring
+- 🔍 Amélioration de l'observabilité
+
+### Version 2.0 - Juin 2024
+
+**Refonte majeure :**
+- 🏗️ Nouvelle architecture microservices
+- 📡 Approche event-driven
+- 🔄 Refonte complète des vues applicatives
+
+### Version 1.2 - Mars 2024
+
+**Sécurité :**
+- 🛡️ Renforcement de la section sécurité
+- 🔒 Analyse des risques détaillée
+- 💳 Conformité PCI-DSS
+
+### Version 1.1 - Février 2024
+
+**Enrichissement métier :**
+- 📋 Ajout des diagrammes de capacités
+- 💼 Flux de valeur métier
+- 🎯 Vue métier enrichie
+
+### Version 1.0 - Janvier 2024
+
+**Création initiale :**
+- 🎯 Première version avec vues métier et technique de base
+- 📊 Générateur de diagrammes C4
+- 📁 Structure de projet modulaire
+
 ## 📦 Installation et Démarrage rapide
 
 ### Option 1 : Installation locale
@@ -288,6 +352,55 @@ sheet-to-architecture/
 - ✅ **Résumé exécutif** vision stratégique
 - ✅ **Vues spécialisées** infrastructure, sécurité, technologie
 - ✅ **Templates modulaires** Jinja2 personnalisables
+
+## 📁 Structure des Répertoires de Sortie
+
+### Avec `--output-dir` (recommandé)
+
+Quand vous utilisez `--output-dir`, tous les fichiers sont organisés dans une structure claire :
+
+```
+mon-output/
+├── diagrams/          # Tous les diagrammes PlantUML
+│   ├── c4_context.puml
+│   ├── overview.puml
+│   ├── infrastructure_view.puml
+│   ├── security_view.puml
+│   ├── capabilities_map.puml
+│   └── process_*.puml
+└── docs/              # Toute la documentation
+    ├── architecture.md
+    ├── executive_summary.md
+    ├── infrastructure_view.md
+    ├── security_view.md
+    └── technology_view.md
+```
+
+### Exemples d'utilisation
+
+```bash
+# Local - structure organisée
+python generate.py -i mon_fichier.xlsx --output-dir /mes/resultats --all
+
+# Docker - avec volumes séparés
+docker run --rm \
+  -v $(pwd):/app \
+  -v /mes/donnees:/input \
+  -v /mes/resultats:/output \
+  sheet-to-architecture \
+  --input /input/architecture.xlsx \
+  --output-dir /output \
+  --all
+
+# Résultat dans /mes/resultats/diagrams/ et /mes/resultats/docs/
+```
+
+### Sans `--output-dir` (legacy)
+
+```bash
+# Ancienne méthode - compatibilité
+python generate.py -i fichier.xlsx -o generated/diagrams -d generated
+```
 
 ## 📋 Points d'attention Docker
 

@@ -3,8 +3,9 @@ workspace.dsl
 build/
 generated/
 .venv
+.claude
 __pycache__/
 # Sources de données
-#*.xlsx
+*.xlsx
 #*.dsl
 # ou plus précisément :

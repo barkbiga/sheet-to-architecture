@@ -89,6 +89,11 @@ def main(xlsx, output_dir=None, diagrams_dir=None):
         ctx['capabilities'] = ctx.get('capabilities', [])
         ctx['valuestreams'] = ctx.get('valuestreams', [])
         
+        # Ajouter les nouvelles données pour glossaire, références et révisions
+        ctx['glossaire'] = ctx.get('glossaire', [])
+        ctx['references'] = ctx.get('references', [])
+        ctx['revisions'] = ctx.get('revisions', [])
+        
         # Nettoyer les BusinessApp pour éviter les erreurs de tri
         apps = ctx.get('applications', [])
         for app in apps:

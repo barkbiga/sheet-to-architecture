@@ -5,7 +5,12 @@ Génère des diagrammes et tableaux pour les vues infrastructure et sécurité.
 - Groupe par zones réseau
 - Génère des tableaux explicatifs
 """
-import argparse, pathlib, pandas as pd, shutil, subprocess, re
+import argparse, pathlib, pandas as pd, shutil, subprocess, re, sys, os
+
+# Ajouter le répertoire utils au chemin Python
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
+from component_filter import generate_component_puml, generate_component_styles
+from status_styles import get_status_styles, normalize_status, generate_component_with_color_only
 
 ZONE_COLORS = {
     'PCI': '#FF6B6B',
@@ -55,6 +60,10 @@ def deduplicate_flows(flows_df):
 def build_infrastructure_header():
     lines = ['@startuml', 'skinparam componentStyle rectangle']
     
+    # Ajouter les styles unifiés pour les statuts - couleurs douces
+    status_styles = get_status_styles()
+    lines.extend(status_styles)
+    
     # Style pointillé pour les rectangles de zones
     lines.append('skinparam rectangle {')
     lines.append('    BorderStyle dashed')
@@ -62,23 +71,19 @@ def build_infrastructure_header():
     lines.append('    FontStyle bold')
     lines.append('}')
     
-    # Couleurs pour les composants par statut
-    lines.append('skinparam component {')
-    lines.append('    BackgroundColor<<New>> OliveDrab')
-    lines.append('    BackgroundColor<<Existing>> #4472C4')
-    lines.append('    BackgroundColor<<SaaS>> LightGray')
-    lines.append('    BackgroundColor<<Updated>> Gold')
-    lines.append('}')
-    
     return lines
 
 def build_security_header():
     lines = ['@startuml', 'skinparam componentStyle rectangle']
     
-    # Couleurs pour les niveaux de sécurité
+    # Ajouter les styles unifiés pour les statuts - couleurs douces
+    status_styles = get_status_styles()
+    lines.extend(status_styles)
+    
+    # Couleurs pour les niveaux de sécurité (complément aux statuts) - gardées pour compatibilité
     lines.append('skinparam component {')
     lines.append('    BackgroundColor<<High>> #E74C3C')
-    lines.append('    BackgroundColor<<Medium>> #F39C12')
+    lines.append('    BackgroundColor<<Medium>> #F39C12') 
     lines.append('    BackgroundColor<<Low>> #27AE60')
     lines.append('}')
     
@@ -104,8 +109,12 @@ def build_infrastructure_zones(apps_df, flows_df):
         
         for _, row in group.iterrows():
             alias = safe_alias(row['ID'])
-            status = row.get('Status', 'Existing')
-            blocks.append(f'  component "{row["ID"]}" as {alias} <<{status}>>')
+            status = normalize_status(row.get('Status', 'UNCHANGED'))
+            # Utiliser la fonction utilitaire pour générer le bon type de composant
+            component_puml = generate_component_puml(row.to_dict(), alias)
+            # Ajouter le statut pour les couleurs
+            component_puml = component_puml.replace(f' as {alias}', f' as {alias} <<{status}>>')
+            blocks.append(f'  {component_puml}')
         
         blocks.append('}')
     
@@ -120,8 +129,12 @@ def build_security_components(apps_df, flows_df):
     
     for _, row in relevant_apps.iterrows():
         alias = safe_alias(row['ID'])
-        security_level = row.get('Security_Level', 'Medium')
-        blocks.append(f'component "{row["ID"]}" as {alias} <<{security_level}>>')
+        status = normalize_status(row.get('Status', 'UNCHANGED'))
+        # Utiliser la fonction utilitaire pour générer le bon type de composant
+        component_puml = generate_component_puml(row.to_dict(), alias)
+        # Ajouter le statut pour les couleurs
+        component_puml = component_puml.replace(f' as {alias}', f' as {alias} <<{status}>>')
+        blocks.append(f'{component_puml}')
     
     return blocks
 
@@ -260,8 +273,11 @@ def generate_infrastructure_views(xlsx, out_dir=None):
     if 'Status' in flows.columns:
         flows = flows[flows['Status'].str.lower() != 'deleted']
     
-    # Créer les répertoires nécessaires
-    diagrams_dir = pathlib.Path('generated/diagrams')
+    # Utiliser le répertoire de sortie fourni ou le répertoire par défaut
+    if out_dir:
+        diagrams_dir = pathlib.Path(out_dir)
+    else:
+        diagrams_dir = pathlib.Path('generated/diagrams')
     diagrams_dir.mkdir(parents=True, exist_ok=True)
     
     # Vue Infrastructure
@@ -285,7 +301,7 @@ def generate_infrastructure_views(xlsx, out_dir=None):
     security_table_path = diagrams_dir / 'security_table.md'
     save_content(security_table, security_table_path)
     
-    print('✅ Vues infrastructure et sécurité générées dans generated/diagrams/')
+    print(f'✅ Vues infrastructure et sécurité générées dans {diagrams_dir}/')
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()

@@ -142,10 +142,22 @@ skinparam rectangle<<external>> {
     FontColor white
     BorderColor #8A8A8A
 }
+
+skinparam rectangle<<cache>> {
+    BackgroundColor #FF6347
+    FontColor white
+    BorderColor #DC143C
+}
+
+skinparam storage {
+    BackgroundColor #32CD32
+    FontColor white
+    BorderColor #228B22
+}
 '''
 
 def generate_component_puml(app, app_id):
-    """Génère le code PlantUML pour un composant selon son type"""
+    """Génère le code PlantUML pour un composant selon son type SANS tags de statut"""
     app_type = app.get('Type', 'APPLICATION').upper()
     name = app.get('Name', app.get('ID', 'Unknown'))
     is_external = app.get('Status') == 'SaaS' or app.get('External', False)
@@ -155,16 +167,17 @@ def generate_component_puml(app, app_id):
         if client_type == 'EndUser':
             return f'person "{name}" as {app_id}'
         else:
-            return f'rectangle "{name}" as {app_id} <<client>>'
+            return f'rectangle "{name}" as {app_id}'
     elif app_type == 'DATABASE':
         return f'database "{name}" as {app_id}'
     elif app_type == 'TOPIC':
         return f'queue "{name}" as {app_id}'
+    elif app_type == 'FILESTORAGE':
+        return f'storage "{name}" as {app_id}'
+    elif app_type == 'CACHE':
+        return f'rectangle "{name}" as {app_id}'
     else:  # APPLICATION
-        if is_external:
-            return f'rectangle "{name}" as {app_id} <<external>>'
-        else:
-            return f'rectangle "{name}" as {app_id} <<application>>'
+        return f'rectangle "{name}" as {app_id}'
 
 def generate_flow_puml(flow, source_id, target_id):
     """Génère le code PlantUML pour un flux selon son type"""

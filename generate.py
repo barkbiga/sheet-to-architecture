@@ -60,7 +60,7 @@ Exemples d'utilisation:
     
     # Options de génération
     parser.add_argument('--diagrams', nargs='*', 
-                      choices=['context', 'overview', 'infrastructure', 'security', 'process', 'capabilities', 'all'],
+                      choices=['context', 'overview', 'infrastructure', 'security', 'process', 'capabilities', 'business-apps', 'all'],
                       help='Types de diagrammes à générer')
     parser.add_argument('--docs', nargs='*',
                       choices=['architecture', 'executive', 'infrastructure', 'security', 'technology', 'traceability', 'all'],
@@ -101,7 +101,7 @@ Exemples d'utilisation:
     
     diagram_types = []
     if generate_all_diagrams:
-        diagram_types = ['context', 'overview', 'infrastructure', 'security', 'process', 'capabilities']
+        diagram_types = ['context', 'overview', 'infrastructure', 'security', 'process', 'capabilities', 'business-apps']
     elif args.diagrams:
         diagram_types = args.diagrams
     
@@ -148,6 +148,10 @@ Exemples d'utilisation:
         if 'capabilities' in diagram_types:
             cmd = ['python3', 'generators/generate_capabilities_diagram.py', '-i', str(input_file), '-o', str(output_diagrams)]
             success &= run_command(cmd, "Diagrammes de capacités et value streams")
+        
+        if 'business-apps' in diagram_types:
+            cmd = ['python3', 'generators/generate_business_app_diagram.py', '-i', str(input_file), '-o', str(output_diagrams)]
+            success &= run_command(cmd, "Diagramme de regroupement par BusinessApp")
     
     # Génération de la documentation
     if doc_types:
@@ -166,8 +170,6 @@ Exemples d'utilisation:
                 'executive': ['executive_summary.md'],
                 'infrastructure': ['infrastructure_view.md'],
                 'security': ['security_view.md'],
-                'technology': ['technology_view.md'],
-                'traceability': ['traceability_matrix.md']
             }
             
             # Supprimer les docs non demandés

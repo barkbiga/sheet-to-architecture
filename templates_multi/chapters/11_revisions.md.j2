@@ -1,0 +1,64 @@
+# 11 · Historique des Révisions
+
+## 📝 Contrôle de Version du Document
+
+{% if revisions %}
+
+### Informations de Version Actuelle
+
+{% set latest_revision = revisions | sort(attribute='Version') | last %}
+- **Version actuelle** : {{ latest_revision.Version | clean_nan }}
+- **Date de dernière modification** : {{ latest_revision.Date | clean_nan }}
+- **Auteur** : {{ latest_revision.Auteur | clean_nan }}
+- **Statut** : {% if latest_revision.Statut | clean_nan == 'Approuvé' %}🟢{% elif latest_revision.Statut | clean_nan == 'En révision' %}🟡{% else %}🔴{% endif %} {{ latest_revision.Statut | clean_nan }}
+
+### Historique Complet des Révisions
+
+| Version | Date | Auteur | Type | Description | Statut |
+|---------|------|--------|------|-------------|--------|
+{% for revision in revisions | sort(attribute='Version') %}
+| **{{ revision.Version | clean_nan }}** | {{ revision.Date | clean_nan }} | {{ revision.Auteur | clean_nan }} | {{ revision.Type_Modification | clean_nan }} | {{ revision.Description_Modifications | clean_nan }} | {% if revision.Statut | clean_nan == 'Approuvé' %}🟢{% elif revision.Statut | clean_nan == 'En révision' %}🟡{% else %}🔴{% endif %} {{ revision.Statut | clean_nan }} |
+{% endfor %}
+
+### Modifications par Type
+
+{% set types_modif = revisions | groupby('Type_Modification') %}
+{% for type_modif, revisions_list in types_modif %}
+#### {{ type_modif }}
+
+{% for revision in revisions_list %}
+- **v{{ revision.Version | clean_nan }}** ({{ revision.Date | clean_nan }}) : {{ revision.Description_Modifications | clean_nan }}
+  - *Sections impactées* : {{ revision.Sections_Impactees | clean_nan }}
+  - *Impact projet* : {{ revision.Impact_Projet | clean_nan }}
+{% if revision.Actions_Requises | clean_nan and revision.Actions_Requises != 'nan' %}
+  - *Actions requises* : {{ revision.Actions_Requises | clean_nan }}
+{% endif %}
+
+{% endfor %}
+{% endfor %}
+
+### Matrice d'Approbation
+
+| Version | Date | Type Modification | Approbateur | Statut | Actions Requises |
+|---------|------|-------------------|-------------|--------|------------------|
+{% for revision in revisions | sort(attribute='Version') %}
+| {{ revision.Version | clean_nan }} | {{ revision.Date | clean_nan }} | {{ revision.Type_Modification | clean_nan }} | {{ revision.Approbateur | clean_nan }} | {% if revision.Statut | clean_nan == 'Approuvé' %}🟢 {{ revision.Statut | clean_nan }}{% elif revision.Statut | clean_nan == 'En révision' %}🟡 {{ revision.Statut | clean_nan }}{% else %}🔴 {{ revision.Statut | clean_nan }}{% endif %} | {{ revision.Actions_Requises | clean_nan }} |
+{% endfor %}
+
+### Légende des Statuts
+
+- 🟢 **Approuvé** : Version validée et officielle
+- 🟡 **En révision** : Version en cours de validation
+- 🔴 **Rejeté** : Version non validée, modifications requises
+
+### Prochaines Révisions Planifiées
+
+- [ ] **v{{ (latest_revision.Version | float + 0.1) | round(1) }}** : Mise à jour post-audit de sécurité
+- [ ] **v{{ (latest_revision.Version | float + 0.2) | round(1) }}** : Intégration des retours utilisateurs
+- [ ] **v{{ (latest_revision.Version | float + 1.0) | round(1) }}** : Évolution majeure avec nouvelles capacités
+
+{% else %}
+*Aucune révision définie. Veuillez ajouter l'historique des modifications dans l'onglet 'Revisions' du fichier Excel.*
+{% endif %}
+
+---

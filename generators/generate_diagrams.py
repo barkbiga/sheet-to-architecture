@@ -5,7 +5,12 @@
 - groupe les composants par Domain dans des packages
 - ignore les flux Deleted
 """
-import argparse, pathlib, pandas as pd, shutil, subprocess, re, sys
+import argparse, pathlib, pandas as pd, shutil, subprocess, re, sys, os
+
+# Ajouter le répertoire utils au chemin Python
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
+from component_filter import generate_component_puml, generate_component_styles
+from status_styles import get_status_styles, normalize_status, generate_component_with_color_only
 
 COLOR_MAP = {
     'New': 'OliveDrab',
@@ -19,10 +24,11 @@ def safe_alias(name:str)->str:
 
 def header():
     lines=['@startuml','skinparam componentStyle rectangle']
-    for st, col in COLOR_MAP.items():
-        lines.append('skinparam component {')
-        lines.append(f'    BackgroundColor<<{st}>> {col}')
-        lines.append('}')
+    
+    # Ajouter les styles unifiés pour les statuts - couleurs douces
+    status_styles = get_status_styles()
+    lines.extend(status_styles)
+    
     return lines
 
 def build_component_blocks(apps_df):
@@ -32,7 +38,12 @@ def build_component_blocks(apps_df):
         blocks.append(f'rectangle "{dom_name}" {{')
         for _, row in group.iterrows():
             alias=safe_alias(row.ID)
-            blocks.append(f'  component "{row.ID}" as {alias} <<{row.Status}>>')
+            status = normalize_status(row.get('Status', 'UNCHANGED'))
+            # Utiliser la fonction utilitaire pour générer le bon type de composant
+            component_puml = generate_component_puml(row.to_dict(), alias)
+            # Toujours ajouter le statut pour les couleurs
+            component_puml = component_puml.replace(f' as {alias}', f' as {alias} <<{status}>>')
+            blocks.append(f'  {component_puml}')
         blocks.append('}')
     return blocks
 
