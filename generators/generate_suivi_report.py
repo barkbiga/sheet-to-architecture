@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Générateur de diagrammes et rapports pour le suivi des formations
+Générateur de diagrammes et rapports pour le suivi des sujets
 """
 import pandas as pd
 import argparse
@@ -8,8 +8,8 @@ from pathlib import Path
 from datetime import datetime
 import sys
 
-def generate_training_timeline(df, output_dir):
-    """Génère un diagramme de timeline des formations"""
+def generate_suivi_timeline(df, output_dir):
+    """Génère un diagramme de timeline des sujets"""
     
     puml_content = """@startuml training_timeline
 !theme plain

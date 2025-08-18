@@ -154,8 +154,8 @@ Exemples d'utilisation:
             success &= run_command(cmd, "Diagramme de regroupement par BusinessApp")
         
         if 'training' in diagram_types:
-            cmd = ['python3', 'generators/generate_training_report.py', '-i', str(input_file), '-o', str(output_diagrams), '--all']
-            success &= run_command(cmd, "Diagrammes et rapports de formation")
+            cmd = ['python3', 'generators/generate_suivi_report.py', '-i', str(input_file), '-o', str(output_diagrams), '--all']
+            success &= run_command(cmd, "Diagrammes et rapports de suivi")
     
     # Génération de la documentation
     if doc_types:

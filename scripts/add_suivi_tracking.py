@@ -12,9 +12,9 @@ from datetime import datetime
 def add_training_sheet(excel_file):
     """Ajoute la feuille Training au fichier Excel"""
     
-    # Structure des colonnes pour le suivi des formations
-    training_columns = {
-        'TrainingID': 'ID unique du sujet de formation',
+    # Structure des colonnes pour le suivi des sujets
+    suivi_columns = {
+        'SuiviID': 'ID unique du sujet à instruire',
         'Subject': 'Sujet à instruire',
         'Description': 'Description détaillée du sujet',
         'Category': 'Catégorie (Technique, Fonctionnel, Sécurité, Processus)',
@@ -44,24 +44,24 @@ def add_training_sheet(excel_file):
     # Données d'exemple
     sample_data = [
         {
-            'TrainingID': 'TRN-001',
+            'SuiviID': 'SUI-001',
             'Subject': 'Architecture microservices',
-            'Description': 'Formation sur les principes et bonnes pratiques des microservices',
+            'Description': 'Instruction sur les principes et bonnes pratiques des microservices',
             'Category': 'Technique',
             'Priority': 'Haute',
             'Status': 'Planifié',
             'Owner': 'Architecte Lead',
-            'Trainers': 'Expert Architecture',
-            'Trainees': 'Équipe développement',
+            'Instructors': 'Expert Architecture',
+            'TargetTeam': 'Équipe développement',
             'TargetAudience': 'Développeur',
             'EstimatedDuration': 16,
             'PlannedStartDate': '2024-09-01',
             'PlannedEndDate': '2024-09-15',
             'Prerequisites': 'Connaissance Java/Spring',
-            'Materials': 'Slides, Labs pratiques',
+            'Materials': 'Documentation, Labs pratiques',
             'DeliveryMethod': 'Présentiel',
             'Location': 'Salle formation A',
-            'Notes': 'Formation critique pour nouveau projet',
+            'Notes': 'Sujet critique pour nouveau projet',
             'RelatedComponents': 'UserService, OrderService',
             'RelatedProcesses': 'Passage commande',
             'CompletionCriteria': 'Quiz + Projet pratique',
@@ -69,15 +69,15 @@ def add_training_sheet(excel_file):
             'NextActions': 'Programmer sessions pratiques'
         },
         {
-            'TrainingID': 'TRN-002',
+            'SuiviID': 'SUI-002',
             'Subject': 'Sécurité API REST',
-            'Description': 'Formation sur la sécurisation des APIs REST',
+            'Description': 'Instruction sur la sécurisation des APIs REST',
             'Category': 'Sécurité',
             'Priority': 'Critique',
             'Status': 'En cours',
             'Owner': 'RSSI',
-            'Trainers': 'Expert Sécurité',
-            'Trainees': 'Développeurs Backend',
+            'Instructors': 'Expert Sécurité',
+            'TargetTeam': 'Développeurs Backend',
             'TargetAudience': 'Développeur',
             'EstimatedDuration': 8,
             'PlannedStartDate': '2024-08-15',
@@ -87,7 +87,7 @@ def add_training_sheet(excel_file):
             'Materials': 'Documentation OWASP',
             'DeliveryMethod': 'Virtuel',
             'Location': 'Teams',
-            'Notes': 'Formation obligatoire avant MEP',
+            'Notes': 'Sujet obligatoire avant MEP',
             'RelatedComponents': 'AuthService, GatewayAPI',
             'RelatedProcesses': 'Authentification user',
             'CompletionCriteria': 'Audit sécurité réussi',
@@ -102,12 +102,12 @@ def add_training_sheet(excel_file):
             # Créer le DataFrame avec les données d'exemple
             df = pd.DataFrame(sample_data)
             
-            # Écrire dans la feuille Training
-            df.to_excel(writer, sheet_name='Training', index=False)
+            # Écrire dans la feuille Suivi
+            df.to_excel(writer, sheet_name='Suivi', index=False)
             
             # Accéder au workbook pour formater
             workbook = writer.book
-            worksheet = writer.sheets['Training']
+            worksheet = writer.sheets['Suivi']
             
             # Ajuster la largeur des colonnes
             for column in worksheet.columns:
@@ -137,8 +137,8 @@ def add_training_sheet(excel_file):
             
             # Ajouter une feuille de documentation
             doc_data = pd.DataFrame([
-                ['Training', 'Feuille principale de suivi des formations'],
-                ['TrainingID', 'Identifiant unique (format: TRN-XXX)'],
+                ['Suivi', 'Feuille principale de suivi des sujets à instruire'],
+                ['SuiviID', 'Identifiant unique (format: SUI-XXX)'],
                 ['Status', 'Valeurs: Planifié, En cours, Terminé, Reporté, Annulé'],
                 ['Priority', 'Valeurs: Critique, Haute, Moyenne, Basse'],
                 ['Category', 'Valeurs: Technique, Fonctionnel, Sécurité, Processus'],
@@ -147,15 +147,15 @@ def add_training_sheet(excel_file):
                 ['FeedbackScore', 'Score de 1 à 5 étoiles']
             ], columns=['Champ', 'Description/Valeurs'])
             
-            doc_data.to_excel(writer, sheet_name='Training_Doc', index=False)
+            doc_data.to_excel(writer, sheet_name='Suivi_Doc', index=False)
             
-        print(f"✅ Feuille Training ajoutée avec succès à {excel_file}")
-        print(f"📋 {len(sample_data)} exemples de sujets de formation créés")
+        print(f"✅ Feuille Suivi ajoutée avec succès à {excel_file}")
+        print(f"📋 {len(sample_data)} exemples de sujets d'instruction créés")
         
         return True
         
     except Exception as e:
-        print(f"❌ Erreur lors de l'ajout de la feuille Training: {e}")
+        print(f"❌ Erreur lors de l'ajout de la feuille Suivi: {e}")
         return False
 
 def generate_training_report(excel_file, output_file=None):
