@@ -54,6 +54,26 @@ def format_steps(value):
         return '<br/>• ' + '<br/>• '.join(step.strip() for step in steps)
     return str(value)
 
+def format_list_with_bullets(value):
+    """Formate une liste séparée par # en puces markdown"""
+    try:
+        if value is None or (pd.notna(value) == False) or str(value).lower() in ['nan', 'none', 'null']:
+            return ''
+    except:
+        if value is None or str(value).lower() in ['nan', 'none', 'null']:
+            return ''
+    
+    # Séparer par # et créer des puces
+    items = str(value).split('#')
+    if len(items) > 1:
+        formatted_items = []
+        for item in items:
+            item = item.strip()
+            if item:  # Éviter les éléments vides
+                formatted_items.append(f'- {item}')
+        return '\n'.join(formatted_items)
+    return str(value)
+
 def render(tpl_name, ctx, out_path):
     env = Environment(loader=FileSystemLoader(TPL_DIR),
                       trim_blocks=True, lstrip_blocks=True)
@@ -61,6 +81,7 @@ def render(tpl_name, ctx, out_path):
     # Ajouter des filtres personnalisés
     env.filters['clean_nan'] = clean_nan
     env.filters['format_steps'] = format_steps
+    env.filters['format_list_with_bullets'] = format_list_with_bullets
     
     text = env.get_template(tpl_name).render(**ctx)
     out_path.write_text(text, encoding='utf-8')
@@ -93,6 +114,9 @@ def main(xlsx, output_dir=None, diagrams_dir=None):
         ctx['glossaire'] = ctx.get('glossaire', [])
         ctx['references'] = ctx.get('references', [])
         ctx['revisions'] = ctx.get('revisions', [])
+        
+        # Ajouter les patterns et principes architecturaux
+        ctx['patternsandprincipes'] = ctx.get('patternsandprincipes', [])
         
         # Nettoyer les BusinessApp pour éviter les erreurs de tri
         apps = ctx.get('applications', [])

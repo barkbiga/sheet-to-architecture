@@ -51,6 +51,8 @@ def deduplicate_flows(flows_df):
         agg_dict['Authentication'] = lambda x: ', '.join(sorted(set(str(a) for a in x if pd.notna(a)))) 
     if 'Encryption' in flows_df.columns:
         agg_dict['Encryption'] = lambda x: ', '.join(sorted(set(str(e) for e in x if pd.notna(e))))
+    if 'ValidationStatus' in flows_df.columns:
+        agg_dict['ValidationStatus'] = 'first'
     
     # Grouper par source/destination et agréger
     dedup = flows_df.groupby(['Outbound', 'Inbound']).agg(agg_dict).reset_index()
@@ -234,21 +236,30 @@ def generate_security_table(flows_df, apps_df):
         zone = app.get(zone_col, 'INTERNE')
         app_zones[app['ID']] = zone
     
-    table = ["|Source | Destination | Protocole | Chiffrement |Authentification |",
-             "|-------|-------------|-----------|-------------|-----------------|"]
+    table = ["|Source | Destination | Protocole | Chiffrement | Authentification | Statut Validation |",
+             "|-------|-------------|-----------|-------------|------------------|-------------------|"]
     
     for _, row in dedup_flows.iterrows():
         # Récupérer la zone depuis l'application source
         source = row['Outbound']
         cible = row['Inbound']
         authentication = row.get('Authentication', 'Basic Auth')
+        validation_status = row.get('ValidationStatus', 'À valider')
         zone_source = app_zones.get(source, 'INTERNE')
         zone_cible = app_zones.get(cible, 'INTERNE')
 
         protocole = row['Protocol']
         chiffrement = row.get('Encryption', 'TLS')
         
-        table.append(f"| {source}({zone_source}) | {cible}({zone_cible}) | {protocole} | {chiffrement} |{authentication} |")
+        # Ajouter des emojis pour le statut de validation
+        if validation_status == 'Validé':
+            status_display = f"🟢 {validation_status}"
+        elif validation_status == 'En cours':
+            status_display = f"🟡 {validation_status}"
+        else:
+            status_display = f"🔴 {validation_status}"
+        
+        table.append(f"| {source}({zone_source}) | {cible}({zone_cible}) | {protocole} | {chiffrement} | {authentication} | {status_display} |")
     
     return "\n".join(table)
 

@@ -41,9 +41,13 @@
 ```
 
 ### Décisions Architecturales Majeures
+{% if patternsandprincipes %}
 {% for pat in patternsandprincipes %}
-- **{{ pat.Name }}
+- **{{ pat.Name | clean_nan }}**
 {% endfor %}
+{% else %}
+*Aucune décision architecturale définie.*
+{% endif %}
 
 
 ## 🚦 Recommandation & Next Steps
@@ -217,22 +221,33 @@ Non renseigné
 
 ---
 
-#5 Vue Applicative
+# 5 · Vue Applicative
 
-##· Solution globale 
+## 🏗️ Solution globale 
 
-## 🏗️ Patterns d'Architecture
-
-### Patterns Appliqués
-{% for pat in patternsandprincipes %}
-- **{{ pat.Name }}
-{% endfor %}
-
+### Architecture Cible
 ```plantuml
 !include diagrams/c4_context.puml
 ```
 
-##· Solution détaillée – & vues processus
+## 🏗️ Décisions Architecturales
+
+{% if patternsandprincipes %}
+{% for pat in patternsandprincipes %}
+### {{ pat.Name | clean_nan }}
+
+**Motifs :**
+{{ pat.Motif | clean_nan | format_list_with_bullets }}
+
+**Conséquences :**
+{{ pat.Consequences | clean_nan | format_list_with_bullets }}
+
+{% endfor %}
+{% else %}
+*Aucune décision architecturale définie.*
+{% endif %}
+
+## 🔄 Solution détaillée – Vues processus
 
 ### Vues par processus métier
 {% for p in businessprocesses %}
@@ -279,7 +294,7 @@ Non renseigné
 !include diagrams/security_view.puml
 ```
 
-### Matrice des Contrôles de Sécurité
+## 📊 Tableau des Mesures de Sécurité
 {{ security_table }}
 
 ## 🔐 Modèle de Sécurité & Zones Réseau
@@ -328,147 +343,53 @@ Non renseigné
 
 # 7 · Glossaire
 
-## 📖 Termes et Définitions
-
 {% if glossaire %}
-### Termes par Catégorie
 
-{% set categories = glossaire | groupby('Categorie') %}
-{% for categorie, termes in categories %}
-#### {{ categorie }}
-
-{% for terme in termes %}
-**{{ terme.Terme | clean_nan }}**
-: {{ terme.Definition | clean_nan }}
-{% if terme.Synonymes | clean_nan and terme.Synonymes != 'nan' %}
-  
-  *Synonymes* : {{ terme.Synonymes | clean_nan }}
-{% endif %}
-{% if terme.References | clean_nan and terme.References != 'nan' %}
-  
-  *Référence* : [{{ terme.References | clean_nan }}]({{ terme.References | clean_nan }})
-{% endif %}
-
-{% endfor %}
-{% endfor %}
-
-### Index Alphabétique
-
+| Terme | Définition | Catégorie | Synonymes |
+|-------|------------|-----------|-----------|
 {% for terme in glossaire | sort(attribute='Terme') %}
-- **{{ terme.Terme | clean_nan }}** : {{ terme.Definition | clean_nan | truncate(100) }}
+| **{{ terme.Terme | clean_nan }}** | {{ terme.Definition | clean_nan }} | {{ terme.Categorie | clean_nan }} | {{ terme.Synonymes | clean_nan }} |
 {% endfor %}
 
 {% else %}
-*Aucun terme défini dans le glossaire. Veuillez ajouter des termes dans l'onglet 'Glossaire' du fichier Excel.*
+*Aucun terme défini.*
 {% endif %}
 
 # 8 · Documents de Référence
 
-## 📚 Références et Standards Appliqués
+## 📚 Standards et Références Appliqués
 
 {% if references %}
 
-### Documents par Catégorie
-
-{% set categories = references | groupby('Categorie') %}
-{% for categorie, docs in categories %}
-#### {{ categorie }}
-
-{% for doc in docs %}
-**{{ doc.ID | clean_nan }} - {{ doc.Titre | clean_nan }}**
-{% if doc.Statut | clean_nan == 'Obligatoire' %}🔴{% elif doc.Statut | clean_nan == 'Applicable' %}🟡{% else %}🟢{% endif %}
-
-- **Type** : {{ doc.Type | clean_nan }}
-- **Version** : {{ doc.Version | clean_nan }}
-- **Date** : {{ doc.Date_Publication | clean_nan }}
-- **Pertinence** : {{ doc.Pertinence_Projet | clean_nan }}
-- **Description** : {{ doc.Description | clean_nan }}
-{% if doc.URL | clean_nan and doc.URL != 'nan' %}
-- **Lien** : [{{ doc.URL | clean_nan }}]({{ doc.URL | clean_nan }})
-{% endif %}
-
-{% endfor %}
-{% endfor %}
-
-### Matrice de Conformité
-
-| Référence | Titre | Statut | Pertinence Projet |
-|-----------|-------|--------|-------------------|
+| Réf. | Titre | Type | Version | Statut | Pertinence Projet |
+|------|-------|------|---------|--------|-------------------|
 {% for doc in references %}
-| {{ doc.ID | clean_nan }} | **{{ doc.Titre | clean_nan }}** | {% if doc.Statut | clean_nan == 'Obligatoire' %}🔴 {{ doc.Statut | clean_nan }}{% elif doc.Statut | clean_nan == 'Applicable' %}🟡 {{ doc.Statut | clean_nan }}{% else %}🟢 {{ doc.Statut | clean_nan }}{% endif %} | {{ doc.Pertinence_Projet | clean_nan }} |
+| {{ doc.ID | clean_nan }} | {{ doc.Titre | clean_nan }} | {{ doc.Type | clean_nan }} | {{ doc.Version | clean_nan }} | {% if doc.Statut | clean_nan == 'Obligatoire' %}🔴 {{ doc.Statut | clean_nan }}{% elif doc.Statut | clean_nan == 'Applicable' %}🟡 {{ doc.Statut | clean_nan }}{% else %}🟢 {{ doc.Statut | clean_nan }}{% endif %} | {{ doc.Pertinence_Projet | clean_nan }} |
 {% endfor %}
 
-### Légende des Statuts
-
-- 🔴 **Obligatoire** : Conformité requise (réglementation, standards de sécurité)
-- 🟡 **Applicable** : Standards et frameworks appliqués au projet
-- 🟢 **Recommandé** : Bonnes pratiques et guides de référence
+**Légende :** 🔴 Obligatoire | 🟡 Applicable | 🟢 Recommandé
 
 {% else %}
-*Aucune référence définie. Veuillez ajouter des documents dans l'onglet 'References' du fichier Excel.*
+*Aucune référence définie.*
 {% endif %}
 
 # 9 · Historique des Révisions
 
-## 📝 Contrôle de Version du Document
-
 {% if revisions %}
 
-### Informations de Version Actuelle
-
 {% set latest_revision = revisions | sort(attribute='Version') | last %}
-- **Version actuelle** : {{ latest_revision.Version | clean_nan }}
-- **Date de dernière modification** : {{ latest_revision.Date | clean_nan }}
-- **Auteur** : {{ latest_revision.Auteur | clean_nan }}
-- **Statut** : {% if latest_revision.Statut | clean_nan == 'Approuvé' %}🟢{% elif latest_revision.Statut | clean_nan == 'En révision' %}🟡{% else %}🔴{% endif %} {{ latest_revision.Statut | clean_nan }}
+**Version actuelle :** {{ latest_revision.Version | clean_nan }} | **Date :** {{ latest_revision.Date | clean_nan }} | **Statut :** {% if latest_revision.Statut | clean_nan == 'Approuvé' %}🟢{% elif latest_revision.Statut | clean_nan == 'En révision' %}🟡{% else %}🔴{% endif %} {{ latest_revision.Statut | clean_nan }}
 
-### Historique Complet des Révisions
-
-| Version | Date | Auteur | Type | Description | Statut |
-|---------|------|--------|------|-------------|--------|
+| Version | Date | Auteur | Type | Description | Approbateur | Statut |
+|---------|------|--------|------|-------------|-------------|--------|
 {% for revision in revisions | sort(attribute='Version') %}
-| **{{ revision.Version | clean_nan }}** | {{ revision.Date | clean_nan }} | {{ revision.Auteur | clean_nan }} | {{ revision.Type_Modification | clean_nan }} | {{ revision.Description_Modifications | clean_nan }} | {% if revision.Statut | clean_nan == 'Approuvé' %}🟢{% elif revision.Statut | clean_nan == 'En révision' %}🟡{% else %}🔴{% endif %} {{ revision.Statut | clean_nan }} |
+| {{ revision.Version | clean_nan }} | {{ revision.Date | clean_nan }} | {{ revision.Auteur | clean_nan }} | {{ revision.Type_Modification | clean_nan }} | {{ revision.Description_Modifications | clean_nan }} | {{ revision.Approbateur | clean_nan }} | {% if revision.Statut | clean_nan == 'Approuvé' %}🟢{% elif revision.Statut | clean_nan == 'En révision' %}🟡{% else %}🔴{% endif %} {{ revision.Statut | clean_nan }} |
 {% endfor %}
 
-### Modifications par Type
-
-{% set types_modif = revisions | groupby('Type_Modification') %}
-{% for type_modif, revisions_list in types_modif %}
-#### {{ type_modif }}
-
-{% for revision in revisions_list %}
-- **v{{ revision.Version | clean_nan }}** ({{ revision.Date | clean_nan }}) : {{ revision.Description_Modifications | clean_nan }}
-  - *Sections impactées* : {{ revision.Sections_Impactees | clean_nan }}
-  - *Impact projet* : {{ revision.Impact_Projet | clean_nan }}
-{% if revision.Actions_Requises | clean_nan and revision.Actions_Requises != 'nan' %}
-  - *Actions requises* : {{ revision.Actions_Requises | clean_nan }}
-{% endif %}
-
-{% endfor %}
-{% endfor %}
-
-### Matrice d'Approbation
-
-| Version | Date | Type Modification | Approbateur | Statut | Actions Requises |
-|---------|------|-------------------|-------------|--------|------------------|
-{% for revision in revisions | sort(attribute='Version') %}
-| {{ revision.Version | clean_nan }} | {{ revision.Date | clean_nan }} | {{ revision.Type_Modification | clean_nan }} | {{ revision.Approbateur | clean_nan }} | {% if revision.Statut | clean_nan == 'Approuvé' %}🟢 {{ revision.Statut | clean_nan }}{% elif revision.Statut | clean_nan == 'En révision' %}🟡 {{ revision.Statut | clean_nan }}{% else %}🔴 {{ revision.Statut | clean_nan }}{% endif %} | {{ revision.Actions_Requises | clean_nan }} |
-{% endfor %}
-
-### Légende des Statuts
-
-- 🟢 **Approuvé** : Version validée et officielle
-- 🟡 **En révision** : Version en cours de validation
-- 🔴 **Rejeté** : Version non validée, modifications requises
-
-### Prochaines Révisions Planifiées
-
-- [ ] **v{{ (latest_revision.Version | float + 0.1) | round(1) }}** : Mise à jour post-audit de sécurité
-- [ ] **v{{ (latest_revision.Version | float + 0.2) | round(1) }}** : Intégration des retours utilisateurs
-- [ ] **v{{ (latest_revision.Version | float + 1.0) | round(1) }}** : Évolution majeure avec nouvelles capacités
+**Légende :** 🟢 Approuvé | 🟡 En révision | 🔴 Rejeté
 
 {% else %}
-*Aucune révision définie. Veuillez ajouter l'historique des modifications dans l'onglet 'Revisions' du fichier Excel.*
+*Aucune révision définie.*
 {% endif %}
 
 ---

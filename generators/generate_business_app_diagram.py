@@ -35,7 +35,7 @@ def generate_business_app_diagram(data):
     puml = ["@startuml business_apps_map"]
     puml.append("!theme plain")
     puml.append("")
-    puml.append("title Cartographie des Applications par Domaine Métier")
+    puml.append("title 📊 Cartographie des Applications par Domaine Métier")
     puml.append("")
     
     # Styles unifiés pour tous les statuts - couleurs douces
@@ -54,9 +54,10 @@ def generate_business_app_diagram(data):
     puml.append("")
     
     # Optimisations d'affichage
-    puml.append("skinparam minClassWidth 120")
-    puml.append("skinparam packageStyle rectangle")
+    puml.append("skinparam minClassWidth 150")
+    puml.append("skinparam packageStyle rectangle") 
     puml.append("skinparam shadowing false")
+    puml.append("skinparam componentStyle rectangle")
     puml.append("")
     
     # Filtrer uniquement les applications (exclure clients, databases, topics)
@@ -70,6 +71,15 @@ def generate_business_app_diagram(data):
         puml.append("  Aucune application trouvée")
         puml.append("end note")
     else:
+        # Mapping des noms de domaines pour plus de clarté
+        domain_mapping = {
+            'Bus1': '🛍️ Expérience Client',
+            'Bus2': '📦 Supply Chain', 
+            'Bus3': '🎧 Support Client',
+            'Bus4': '💰 Finance',
+            'Non défini': '🔧 Services Transverses'
+        }
+        
         # Grouper par BusinessApp avec disposition optimisée (2 par ligne)
         if 'BusinessApp' in filtered_apps.columns:
             # Remplacer les NaN par 'Non défini' avant le groupby
@@ -82,12 +92,14 @@ def generate_business_app_diagram(data):
             for i in range(0, len(business_apps_list), 2):
                 # Première business app de la ligne
                 bus_app1, apps_group1 = business_apps_list[i]
-                bus_app_name1 = bus_app1 if pd.notna(bus_app1) and bus_app1 != '' else 'Non défini'
+                bus_app_key1 = bus_app1 if pd.notna(bus_app1) and bus_app1 != '' else 'Non défini'
+                bus_app_name1 = domain_mapping.get(bus_app_key1, bus_app_key1)
                 
                 # Deuxième business app de la ligne (si elle existe)
                 if i + 1 < len(business_apps_list):
                     bus_app2, apps_group2 = business_apps_list[i + 1]  
-                    bus_app_name2 = bus_app2 if pd.notna(bus_app2) and bus_app2 != '' else 'Non défini'
+                    bus_app_key2 = bus_app2 if pd.notna(bus_app2) and bus_app2 != '' else 'Non défini'
+                    bus_app_name2 = domain_mapping.get(bus_app_key2, bus_app_key2)
                     
                     # Créer deux packages côte à côte
                     puml.append(f'package "{bus_app_name1}" {{')
@@ -141,6 +153,17 @@ def generate_business_app_diagram(data):
             puml.append("  Colonne BusinessApp non trouvée")
             puml.append("end note")
     
+    # Ajouter une légende pour les statuts
+    puml.append("")
+    puml.append("' === Légende des statuts ===")
+    puml.append("legend bottom")
+    puml.append("  |= Statut |= Description |")
+    puml.append("  | <back:#2e8b57><color:white><b> NEW </b></color></back> | Nouvelle application |")
+    puml.append("  | <back:#f0e68c><color:black><b> EXISTING </b></color></back> | Application existante |") 
+    puml.append("  | <back:#28A745><color:white><b> SAAS </b></color></back> | Service externe |")
+    puml.append("endlegend")
+    
+    puml.append("")
     puml.append("@enduml")
     return "\n".join(puml)
 
