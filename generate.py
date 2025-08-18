@@ -60,7 +60,7 @@ Exemples d'utilisation:
     
     # Options de génération
     parser.add_argument('--diagrams', nargs='*', 
-                      choices=['context', 'overview', 'infrastructure', 'security', 'process', 'capabilities', 'business-apps', 'all'],
+                      choices=['context', 'overview', 'infrastructure', 'security', 'process', 'capabilities', 'business-apps', 'training', 'all'],
                       help='Types de diagrammes à générer')
     parser.add_argument('--docs', nargs='*',
                       choices=['architecture', 'executive', 'infrastructure', 'security', 'technology', 'traceability', 'all'],
@@ -101,7 +101,7 @@ Exemples d'utilisation:
     
     diagram_types = []
     if generate_all_diagrams:
-        diagram_types = ['context', 'overview', 'infrastructure', 'security', 'process', 'capabilities', 'business-apps']
+        diagram_types = ['context', 'overview', 'infrastructure', 'security', 'process', 'capabilities', 'business-apps', 'training']
     elif args.diagrams:
         diagram_types = args.diagrams
     
@@ -152,6 +152,10 @@ Exemples d'utilisation:
         if 'business-apps' in diagram_types:
             cmd = ['python3', 'generators/generate_business_app_diagram.py', '-i', str(input_file), '-o', str(output_diagrams)]
             success &= run_command(cmd, "Diagramme de regroupement par BusinessApp")
+        
+        if 'training' in diagram_types:
+            cmd = ['python3', 'generators/generate_training_report.py', '-i', str(input_file), '-o', str(output_diagrams), '--all']
+            success &= run_command(cmd, "Diagrammes et rapports de formation")
     
     # Génération de la documentation
     if doc_types:
