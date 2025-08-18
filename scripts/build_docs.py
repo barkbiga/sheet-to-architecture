@@ -118,6 +118,9 @@ def main(xlsx, output_dir=None, diagrams_dir=None):
         # Ajouter les patterns et principes architecturaux
         ctx['patternsandprincipes'] = ctx.get('patternsandprincipes', [])
         
+        # Ajouter les données de suivi des sujets
+        ctx['suivi'] = ctx.get('suivi', [])
+        
         # Nettoyer les BusinessApp pour éviter les erreurs de tri
         apps = ctx.get('applications', [])
         for app in apps:

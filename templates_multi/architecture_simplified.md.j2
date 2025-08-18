@@ -15,9 +15,10 @@
 4. [Vues d'Architecture](#4--vues-darchitecture)
 5. [Architecture Technique](#5--architecture-technique)
 6. [Sécurité & Conformité](#6--sécurité--conformité)
-7. [Glossaire](#7--glossaire)
-8. [Documents de Référence](#8--documents-de-référence)
-9. [Historique des Révisions](#9--historique-des-révisions)
+7. [Suivi des Sujets à Instruire](#7--suivi-des-sujets-à-instruire)
+8. [Glossaire](#8--glossaire)
+9. [Documents de Référence](#9--documents-de-référence)
+10. [Historique des Révisions](#10--historique-des-révisions)
 
 ---
 
@@ -57,7 +58,7 @@
 **Prochaines étapes critiques :**
 - [ ] Validation sécurité par le RSSI
 - [ ] Setup des environnements de développement
-- [ ] Formation des équipes techniques
+- [ ] Instruction des équipes techniques sur les nouvelles technologies
 
 ---
 
@@ -341,7 +342,21 @@ Non renseigné
 
 ---
 
-# 7 · Glossaire
+# 7 · Suivi des Sujets à Instruire
+
+{% if suivi %}
+| ID | Sujet | Description | Catégorie | Acteur Responsable | Priorité | Échéance | Statut |
+|---|---|---|---|---|---|---|---|
+{% for item in suivi %}
+| {{ item.SuiviID | clean_nan }} | {{ item.Subject | clean_nan }} | {{ item.Description | clean_nan }} | {{ item.Category | clean_nan }} | {{ item.Owner | clean_nan }} | {% if item.Priority | clean_nan == 'Critique' %}🔴 {{ item.Priority | clean_nan }}{% elif item.Priority | clean_nan == 'Haute' %}🟠 {{ item.Priority | clean_nan }}{% else %}🟡 {{ item.Priority | clean_nan }}{% endif %} | {{ item.PlannedEndDate | clean_nan }} | {% if item.Status | clean_nan == 'En cours' %}🟡 {{ item.Status | clean_nan }}{% elif item.Status | clean_nan == 'Terminé' %}🟢 {{ item.Status | clean_nan }}{% else %}📅 {{ item.Status | clean_nan }}{% endif %} |
+{% endfor %}
+{% else %}
+*Aucun sujet d'instruction défini.*
+{% endif %}
+
+---
+
+# 8 · Glossaire
 
 {% if glossaire %}
 
@@ -355,7 +370,7 @@ Non renseigné
 *Aucun terme défini.*
 {% endif %}
 
-# 8 · Documents de Référence
+# 9 · Documents de Référence
 
 ## 📚 Standards et Références Appliqués
 
@@ -373,7 +388,7 @@ Non renseigné
 *Aucune référence définie.*
 {% endif %}
 
-# 9 · Historique des Révisions
+# 10 · Historique des Révisions
 
 {% if revisions %}
 
